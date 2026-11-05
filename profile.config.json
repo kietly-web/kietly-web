@@ -6,11 +6,10 @@
   "theme": {
     "gradient": ["6366F1", "EC4899"],
     "accent": "A855F7",
-    "font": "Fira Code",
-    "cards": { "dark": "tokyonight", "light": "default" },
-    "activityGraph": { "dark": "tokyo-night", "light": "minimal" },
-    "statsHost": "https://github-readme-stats.vercel.app"
+    "font": "Fira Code"
   },
+
+  "assetsBranch": "output",
 
   "sections": [
     "header",
@@ -39,6 +38,7 @@
     "viewsCounter": true,
     "links": [
       { "label": "GitHub", "url": "https://github.com/kietly-web", "logo": "github", "color": "181717" },
+      { "label": "Live demo", "url": "https://seller-business-advisor.vercel.app", "logo": "vercel", "color": "000000" },
       { "label": "LinkedIn", "url": "", "logo": "linkedin", "color": "0A66C2" },
       { "label": "Email", "url": "", "logo": "gmail", "color": "EA4335" },
       { "label": "Website", "url": "", "logo": "googlechrome", "color": "4285F4" }
@@ -48,7 +48,7 @@
   "about": {
     "style": "code",
     "items": [
-      { "emoji": "🔭", "key": "building", "text": "Shopee Seller Advisor — an AI decision assistant for small Vietnamese Shopee sellers" },
+      { "emoji": "🔭", "key": "building", "text": "Shopee Seller Advisor, AI decisions for small Vietnamese sellers" },
       { "emoji": "🤖", "key": "exploring", "text": "How far AI coding agents can go on a production-grade system" },
       { "emoji": "🌱", "key": "learning", "text": "Postgres RLS, LLM guardrails, privacy-first data pipelines" },
       { "emoji": "💬", "key": "askMeAbout", "text": "AI product discovery, Next.js, TypeScript" }
@@ -61,16 +61,27 @@
   },
 
   "projects": [
-    { "repo": "seller-business-advisor" },
-    { "repo": "ai-learning" }
+    {
+      "repo": "seller-business-advisor",
+      "title": "Shopee Seller Advisor",
+      "description": "AI decision assistant that turns a small Shopee seller's exported data and unit costs into at most 5 explained actions a week, then measures whether each one paid off.",
+      "highlights": [
+        "**Rules first, LLM explains.** The engine computes every number; the model writes text with `{{placeholders}}`, and any stray digit in its output is rejected.",
+        "**Privacy by construction.** Seller Centre exports are parsed in the browser and buyer PII columns are dropped before anything is uploaded.",
+        "**Tenant isolation in Postgres.** Row-level security on every shop table, with a generated test suite that fails if a new table skips it.",
+        "**Built like it'll have real users.** 9 ADRs, Better Auth with 2FA and breached-password checks, a Postgres job queue, and compliance docs for Vietnam's AI law."
+      ]
+    },
+    { "repo": "ai-learning", "title": "AI Learning" }
   ],
 
   "stats": {
-    "statsCard": true,
-    "topLanguages": true,
-    "streak": true,
-    "includeAllCommits": true,
-    "countPrivate": true
+    "overview": true,
+    "languages": true
+  },
+
+  "activity": {
+    "weeks": 16
   },
 
   "recent": {
