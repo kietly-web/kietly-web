@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GitHub profile README config",
+  "description": "Everything on the profile comes from this file. scripts/build-readme.mjs validates it against this schema, fills in the defaults below, and regenerates README.md.",
+  "type": "object",
+  "required": ["username", "name"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "username": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$",
+      "description": "GitHub login. The repo must be named exactly this for GitHub to show it as the profile README."
+    },
+    "name": { "type": "string", "minLength": 1, "description": "Display name in the header banner." },
+    "tagline": { "type": "string", "default": "", "description": "One line under the name in the header banner. Keep it under ~60 characters." },
+    "theme": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": false,
+      "properties": {
+        "gradient": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/hex" },
+          "minItems": 2,
+          "maxItems": 2,
+          "default": ["6366F1", "EC4899"],
+          "description": "Start and end colours of the banner and card accents, hex without #."
+        },
+        "accent": { "$ref": "#/$defs/hex", "default": "A855F7", "description": "Typing text, profile-view badge and chart accent." },
+        "font": { "type": "string", "default": "Fira Code", "description": "Google Font used by the typing animation." }
+      }
+    },
+    "assetsBranch": { "type": "string", "default": "output", "description": "Branch the Action publishes generated SVGs to." },
+    "sections": {
+      "type": "array",
+      "default": ["header", "typing", "badges", "about", "stack", "projects", "stats", "activity", "recent", "snake", "footer"],
+      "description": "Render order. Remove a name to hide that section. An object adds a custom Markdown section at that position.",
+      "items": {
+        "anyOf": [
+          { "enum": ["header", "typing", "badges", "about", "stack", "projects", "stats", "activity", "recent", "snake", "footer"] },
+          {
+            "type": "object",
+            "required": ["markdown"],
+            "additionalProperties": false,
+            "properties": {
+              "heading": { "type": "string", "description": "Optional level-2 heading, emoji welcome." },
+              "markdown": { "type": "string", "description": "GitHub-flavoured Markdown or HTML for the section body." }
+            }
+          }
+        ]
+      }
+    },
+    "headings": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": false,
+      "description": "Section headings. Set one to an empty string to drop the heading but keep the section.",
+      "properties": {
+        "about": { "type": "string", "default": "👨‍💻 About me" },
+        "stack": { "type": "string", "default": "🛠️ Tech stack" },
+        "projects": { "type": "string", "default": "🚀 Featured work" },
+        "stats": { "type": "string", "default": "📊 By the numbers" },
+        "recent": { "type": "string", "default": "⚡ Recently shipped" }
+      }
+    },
+    "typing": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": false,
+      "properties": {
+        "lines": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 48 },
+          "default": [],
+          "description": "Lines the typing animation cycles through. 3–5 lines of ≤ 48 characters read best."
+        }
+      }
+    },
+    "badges": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": false,
+      "properties": {
+        "viewsCounter": { "type": "boolean", "default": true },
+        "links": {
+          "type": "array",
+          "default": [],
+          "description": "Contact and link badges. A badge with an empty url is hidden, so placeholders are safe.",
+          "items": {
+            "type": "object",
+            "required": ["label", "url"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "type": "string" },
+              "url": { "type": "string", "pattern": "^(|https?://.+|mailto:.+)$" },
+              "logo": { "type": "string", "default": "", "description": "Simple Icons slug, e.g. github, linkedin, gmail, x, youtube (https://simpleicons.org)." },
+              "color": { "$ref": "#/$defs/hex", "default": "181717" }
+            }
+          }
+        }
+      }
+    },
+    "about": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": false,
+      "properties": {
+        "style": { "enum": ["code", "list"], "default": "code", "description": "code renders a TypeScript object; list renders bullets." },
+        "variable": { "type": "string", "pattern": "^[A-Za-z_$][A-Za-z0-9_$]*$", "description": "Variable name in the code style. Defaults to the lowercased first name." },
+        "items": {
+          "type": "array",
+          "default": [],
+          "description": "Keep each text under ~65 characters so the code block fits without scrolling.",
+          "items": {
+            "type": "object",
+            "required": ["key", "text"],
+            "additionalProperties": false,
+            "properties": {
+              "emoji": { "type": "string", "default": "" },
+              "key": { "type": "string", "pattern": "^[A-Za-z_$][A-Za-z0-9_$]*$", "description": "camelCase key, e.g. building, learning, askMeAbout." },
+              "text": { "type": "string", "maxLength": 80 }
+            }
+          }
+        }
+      }
+    },
+    "stack": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": false,
+      "properties": {
+        "perLine": { "type": "integer", "minimum": 1, "maximum": 50, "default": 10 },
+        "icons": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z0-9]+$" },
+          "default": [],
+          "description": "skillicons.dev ids, e.g. ts, py, go, react, docker, aws. Full list: https://github.com/tandpfun/skill-icons#icons-list"
+        }
+      }
+    },
+    "projects": {
+      "type": "array",
+      "default": [],
+      "description": "Repos to feature. A project with highlights gets a wide spotlight card and bullets; others share a two-up row.",
+      "items": {
+        "type": "object",
+        "required": ["repo"],
+        "additionalProperties": false,
+        "properties": {
+          "repo": { "type": "string", "description": "Repo name under username (public)." },
+          "title": { "type": "string", "description": "Display name. Defaults to the repo name." },
+          "description": { "type": "string", "maxLength": 230, "description": "Overrides the GitHub repo description on the card." },
+          "highlights": {
+            "type": "array",
+            "items": { "type": "string" },
+            "maxItems": 6,
+            "description": "Bullets under the spotlight card. Lead with a bold claim, then the concrete proof."
+          }
+        }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": false,
+      "properties": {
+        "overview": { "type": "boolean", "default": true, "description": "Contributions, commits, PRs, reviews, repos and streak ring." },
+        "languages": { "type": "boolean", "default": true, "description": "Top languages by bytes across public, non-fork repos." }
+      }
+    },
+    "activity": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": false,
+      "properties": {
+        "weeks": { "type": "integer", "minimum": 4, "maximum": 52, "default": 16, "description": "Weeks of contributions in the bar chart." }
+      }
+    },
+    "recent": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": false,
+      "description": "Latest merged public PRs authored by username.",
+      "properties": {
+        "count": { "type": "integer", "minimum": 1, "maximum": 20, "default": 5 },
+        "exclude": { "type": "array", "items": { "type": "string" }, "default": [], "description": "Repo names to leave out." }
+      }
+    },
+    "snake": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": false,
+      "properties": {
+        "colorSnake": { "$ref": "#/$defs/hex", "default": "A855F7" },
+        "dotsLight": { "$ref": "#/$defs/fiveHex", "default": ["ebedf0", "e9d5ff", "c084fc", "9333ea", "6b21a8"] },
+        "dotsDark": { "$ref": "#/$defs/fiveHex", "default": ["161b22", "3b0764", "6b21a8", "9333ea", "c084fc"] }
+      }
+    },
+    "footer": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": false,
+      "properties": {
+        "quote": { "type": "string", "default": "" },
+        "credit": { "type": "string", "default": "", "description": "Optional small Markdown line under the quote." }
+      }
+    }
+  },
+  "$defs": {
+    "hex": { "type": "string", "pattern": "^[0-9A-Fa-f]{6}$", "description": "Hex colour without #, e.g. A855F7." },
+    "fiveHex": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/hex" },
+      "minItems": 5,
+      "maxItems": 5,
+      "description": "Five hex colours: empty cell, then low to high contribution levels."
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "github-profile-readme",
+  "private": true,
+  "type": "module",
+  "description": "Config-driven GitHub profile README with self-hosted stats cards",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "check": "node scripts/build-readme.mjs --check",
+    "build": "node scripts/build-readme.mjs",
+    "preview": "node scripts/build-readme.mjs --preview"
+  }
+}

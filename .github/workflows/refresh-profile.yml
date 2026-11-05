@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - profile.config.json
+      - profile.config.schema.json
       - scripts/**
       - .github/workflows/refresh-profile.yml
 

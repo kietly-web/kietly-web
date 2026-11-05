@@ -1,16 +1,17 @@
 {
+  "$schema": "./profile.config.schema.json",
   "username": "kietly-web",
   "name": "Kiet Ly",
   "tagline": "Building practical AI products for small businesses",
-
   "theme": {
-    "gradient": ["6366F1", "EC4899"],
+    "gradient": [
+      "6366F1",
+      "EC4899"
+    ],
     "accent": "A855F7",
     "font": "Fira Code"
   },
-
   "assetsBranch": "output",
-
   "sections": [
     "header",
     "typing",
@@ -24,7 +25,6 @@
     "snake",
     "footer"
   ],
-
   "typing": {
     "lines": [
       "Hi, I'm Kiet 👋",
@@ -33,33 +33,81 @@
       "Currently: Shopee Seller Advisor"
     ]
   },
-
   "badges": {
     "viewsCounter": true,
     "links": [
-      { "label": "GitHub", "url": "https://github.com/kietly-web", "logo": "github", "color": "181717" },
-      { "label": "Live demo", "url": "https://seller-business-advisor.vercel.app", "logo": "vercel", "color": "000000" },
-      { "label": "LinkedIn", "url": "", "logo": "linkedin", "color": "0A66C2" },
-      { "label": "Email", "url": "", "logo": "gmail", "color": "EA4335" },
-      { "label": "Website", "url": "", "logo": "googlechrome", "color": "4285F4" }
+      {
+        "label": "GitHub",
+        "url": "https://github.com/kietly-web",
+        "logo": "github",
+        "color": "181717"
+      },
+      {
+        "label": "Live demo",
+        "url": "https://seller-business-advisor.vercel.app",
+        "logo": "vercel",
+        "color": "000000"
+      },
+      {
+        "label": "LinkedIn",
+        "url": "",
+        "logo": "linkedin",
+        "color": "0A66C2"
+      },
+      {
+        "label": "Email",
+        "url": "",
+        "logo": "gmail",
+        "color": "EA4335"
+      },
+      {
+        "label": "Website",
+        "url": "",
+        "logo": "googlechrome",
+        "color": "4285F4"
+      }
     ]
   },
-
   "about": {
     "style": "code",
     "items": [
-      { "emoji": "🔭", "key": "building", "text": "Shopee Seller Advisor, AI decisions for small Vietnamese sellers" },
-      { "emoji": "🤖", "key": "exploring", "text": "How far AI coding agents can go on a production-grade system" },
-      { "emoji": "🌱", "key": "learning", "text": "Postgres RLS, LLM guardrails, privacy-first data pipelines" },
-      { "emoji": "💬", "key": "askMeAbout", "text": "AI product discovery, Next.js, TypeScript" }
+      {
+        "emoji": "🔭",
+        "key": "building",
+        "text": "Shopee Seller Advisor, AI decisions for small Vietnamese sellers"
+      },
+      {
+        "emoji": "🤖",
+        "key": "exploring",
+        "text": "How far AI coding agents can go on a production-grade system"
+      },
+      {
+        "emoji": "🌱",
+        "key": "learning",
+        "text": "Postgres RLS, LLM guardrails, privacy-first data pipelines"
+      },
+      {
+        "emoji": "💬",
+        "key": "askMeAbout",
+        "text": "AI product discovery, Next.js, TypeScript"
+      }
     ]
   },
-
   "stack": {
     "perLine": 10,
-    "icons": ["ts", "js", "nodejs", "nextjs", "react", "postgres", "vercel", "githubactions", "pnpm", "git"]
+    "icons": [
+      "ts",
+      "js",
+      "nodejs",
+      "nextjs",
+      "react",
+      "postgres",
+      "vercel",
+      "githubactions",
+      "pnpm",
+      "git"
+    ]
   },
-
   "projects": [
     {
       "repo": "seller-business-advisor",
@@ -72,31 +120,41 @@
         "**Built like it'll have real users.** 9 ADRs, Better Auth with 2FA and breached-password checks, a Postgres job queue, and compliance docs for Vietnam's AI law."
       ]
     },
-    { "repo": "ai-learning", "title": "AI Learning" }
+    {
+      "repo": "ai-learning",
+      "title": "AI Learning"
+    }
   ],
-
   "stats": {
     "overview": true,
     "languages": true
   },
-
   "activity": {
     "weeks": 16
   },
-
   "recent": {
-    "title": "Recently shipped",
     "count": 5,
     "exclude": []
   },
-
   "snake": {
     "colorSnake": "A855F7",
-    "dotsLight": ["ebedf0", "e9d5ff", "c084fc", "9333ea", "6b21a8"],
-    "dotsDark": ["161b22", "3b0764", "6b21a8", "9333ea", "c084fc"]
+    "dotsLight": [
+      "ebedf0",
+      "e9d5ff",
+      "c084fc",
+      "9333ea",
+      "6b21a8"
+    ],
+    "dotsDark": [
+      "161b22",
+      "3b0764",
+      "6b21a8",
+      "9333ea",
+      "c084fc"
+    ]
   },
-
   "footer": {
-    "quote": "Every number is computed, never generated."
+    "quote": "Every number is computed, never generated.",
+    "credit": "✨ Like this profile? The template is free for anyone to use: <a href=\"https://github.com/kietly-web/kietly-web/blob/main/SETUP.md\">grab it here</a> and let Claude make it yours."
   }
 }
