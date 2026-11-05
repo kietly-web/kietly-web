@@ -55,11 +55,11 @@ const kiet = {
 
 ## ⚡ Recently shipped
 
-- 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/21"><code>SA-000</code> adopt lean mode and add production migrations</a> <sub>· seller-business-advisor · 05 Nov 2026</sub>
-- 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/20"><code>SA-105</code> add Better Auth email sign-up with verification, 2FA and HIBP</a> <sub>· seller-business-advisor · 05 Nov 2026</sub>
-- 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/19"><code>SA-002</code> delete Neon preview branches when a PR closes</a> <sub>· seller-business-advisor · 05 Nov 2026</sub>
-- 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/18"><code>SA-110</code> add data inventory, AI classification memo and breach runbook</a> <sub>· seller-business-advisor · 04 Nov 2026</sub>
-- 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/17"><code>SA-108</code> add audit action catalogue</a> <sub>· seller-business-advisor · 04 Nov 2026</sub>
+- 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/33"><code>SA-406</code> weekly run, action cards and competitor tracker</a> <sub>· seller-business-advisor · 05 Nov 2026</sub>
+- 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/32"><code>SA-110</code> add BA case study of decisions and trade-offs</a> <sub>· seller-business-advisor · 05 Nov 2026</sub>
+- 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/31"><code>SA-404</code> Claude explanations with validation and template fallback</a> <sub>· seller-business-advisor · 05 Nov 2026</sub>
+- 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/30"><code>SA-401</code> rules v1, ranking and golden set</a> <sub>· seller-business-advisor · 05 Nov 2026</sub>
+- 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/29"><code>SA-301</code> weekly profit per SKU with drill-down</a> <sub>· seller-business-advisor · 05 Nov 2026</sub>
 
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kietly-web/kietly-web/output/snake-dark.svg"><img alt="Snake eating my contribution graph" src="https://raw.githubusercontent.com/kietly-web/kietly-web/output/snake-light.svg" width="100%"></picture>
