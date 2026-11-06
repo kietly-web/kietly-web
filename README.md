@@ -55,11 +55,11 @@ const kiet = {
 
 ## ⚡ Recently shipped
 
+- 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/34"><code>SA-105</code> Google sign-in and setup register</a> <sub>· seller-business-advisor · 06 Nov 2026</sub>
 - 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/33"><code>SA-406</code> weekly run, action cards and competitor tracker</a> <sub>· seller-business-advisor · 05 Nov 2026</sub>
 - 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/32"><code>SA-110</code> add BA case study of decisions and trade-offs</a> <sub>· seller-business-advisor · 05 Nov 2026</sub>
 - 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/31"><code>SA-404</code> Claude explanations with validation and template fallback</a> <sub>· seller-business-advisor · 05 Nov 2026</sub>
 - 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/30"><code>SA-401</code> rules v1, ranking and golden set</a> <sub>· seller-business-advisor · 05 Nov 2026</sub>
-- 🟣 <a href="https://github.com/kietly-web/seller-business-advisor/pull/29"><code>SA-301</code> weekly profit per SKU with drill-down</a> <sub>· seller-business-advisor · 05 Nov 2026</sub>
 
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kietly-web/kietly-web/output/snake-dark.svg"><img alt="Snake eating my contribution graph" src="https://raw.githubusercontent.com/kietly-web/kietly-web/output/snake-light.svg" width="100%"></picture>
