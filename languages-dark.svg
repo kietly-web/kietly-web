@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="495" height="195" viewBox="0 0 495 195" role="img" aria-label="Top languages">
+  <defs>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6366F1"/><stop offset="0.5" stop-color="#A855F7"/><stop offset="1" stop-color="#EC4899"/></linearGradient>
+    <linearGradient id="brandFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A855F7" stop-opacity="0.35"/><stop offset="1" stop-color="#A855F7" stop-opacity="0"/></linearGradient>
+  </defs>
+  <style>
+    text { font-family: "Segoe UI", Ubuntu, "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #e6edf3; }
+    .title { font-size: 17px; font-weight: 700; fill: url(#brand); }
+    .sub { font-size: 11.5px; fill: #8b949e; }
+    .label { font-size: 13px; fill: #8b949e; }
+    .value { font-size: 14px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .fade { opacity: 0; animation: fade 0.6s ease-out forwards; }
+    @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .fade { animation: none; opacity: 1; } * { animation: none !important; } }
+  </style>
+  <rect x="0.5" y="0.5" width="494" height="194" rx="12" fill="#161b22" stroke="#30363d"/>
+  <rect x="0.5" y="0.5" width="494" height="3" rx="1.5" fill="url(#brand)"/>
+  <text x="25" y="38" class="title">Top languages</text>
+    <text x="25" y="55" class="sub">by bytes of code across public repos</text>
+    
+    <clipPath id="bar"><rect x="25" y="72" width="445" height="12" rx="6"/></clipPath>
+    <g clip-path="url(#bar)"><rect x="25.00" y="72" width="409.23" height="12" fill="#3178c6"/><rect x="434.23" y="72" width="22.62" height="12" fill="#f1e05a"/><rect x="456.85" y="72" width="10.13" height="12" fill="#336790"/><rect x="466.97" y="72" width="2.67" height="12" fill="#663399"/><rect x="469.64" y="72" width="0.36" height="12" fill="#89e051"/></g>
+    <g class="fade" style="animation-delay:0.15s">
+        <circle cx="30" cy="111" r="5" fill="#3178c6"/>
+        <text x="43" y="115" style="font-size:13px">TypeScript</text>
+        <text x="230" y="115" class="value" style="font-size:12.5px" text-anchor="end">92.0%</text>
+      </g>
+<g class="fade" style="animation-delay:0.22999999999999998s">
+        <circle cx="260" cy="111" r="5" fill="#f1e05a"/>
+        <text x="273" y="115" style="font-size:13px">JavaScript</text>
+        <text x="460" y="115" class="value" style="font-size:12.5px" text-anchor="end">5.1%</text>
+      </g>
+<g class="fade" style="animation-delay:0.31s">
+        <circle cx="30" cy="135" r="5" fill="#336790"/>
+        <text x="43" y="139" style="font-size:13px">PLpgSQL</text>
+        <text x="230" y="139" class="value" style="font-size:12.5px" text-anchor="end">2.3%</text>
+      </g>
+<g class="fade" style="animation-delay:0.39s">
+        <circle cx="260" cy="135" r="5" fill="#663399"/>
+        <text x="273" y="139" style="font-size:13px">CSS</text>
+        <text x="460" y="139" class="value" style="font-size:12.5px" text-anchor="end">0.6%</text>
+      </g>
+<g class="fade" style="animation-delay:0.47s">
+        <circle cx="30" cy="159" r="5" fill="#89e051"/>
+        <text x="43" y="163" style="font-size:13px">Shell</text>
+        <text x="230" y="163" class="value" style="font-size:12.5px" text-anchor="end">0.1%</text>
+      </g>
+</svg>
