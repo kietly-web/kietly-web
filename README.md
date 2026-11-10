@@ -55,11 +55,11 @@ const kiet = {
 
 ## ⚡ Recently shipped
 
+- 🟣 <a href="https://github.com/kietly-web/engagement-tool/pull/11"><code>ET-20</code> Revise delivery plan around alerts and a small invited beta</a> <sub>· engagement-tool · 10 Nov 2026</sub>
+- 🟣 <a href="https://github.com/kietly-web/engagement-tool/pull/10"><code>ET-12</code> Reprioritise backlog around a phase 1 demo</a> <sub>· engagement-tool · 10 Nov 2026</sub>
 - 🟣 <a href="https://github.com/kietly-web/engagement-tool/pull/9"><code>ET-9</code> Add moderator invites, membership changes and audit log</a> <sub>· engagement-tool · 08 Nov 2026</sub>
 - 🟣 <a href="https://github.com/kietly-web/engagement-tool/pull/8"><code>ET-8</code> Add points, seasons, leaderboard and daily retention</a> <sub>· engagement-tool · 08 Nov 2026</sub>
 - 🟣 <a href="https://github.com/kietly-web/engagement-tool/pull/7"><code>ET-7</code> Add OBS overlays with rotatable per-widget links</a> <sub>· engagement-tool · 08 Nov 2026</sub>
-- 🟣 <a href="https://github.com/kietly-web/engagement-tool/pull/6"><code>ET-6</code> Add live session engine, quota keeper and demo mode</a> <sub>· engagement-tool · 08 Nov 2026</sub>
-- 🟣 <a href="https://github.com/kietly-web/engagement-tool/pull/5"><code>ET-5</code> Add Google sign-in, sessions and YouTube connection</a> <sub>· engagement-tool · 08 Nov 2026</sub>
 
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kietly-web/kietly-web/output/snake-dark.svg"><img alt="Snake eating my contribution graph" src="https://raw.githubusercontent.com/kietly-web/kietly-web/output/snake-light.svg" width="100%"></picture>
