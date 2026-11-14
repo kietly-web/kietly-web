@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="830" height="260" viewBox="0 0 830 260" role="img" aria-label="Contribution activity">
+  <defs>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6366F1"/><stop offset="0.5" stop-color="#A855F7"/><stop offset="1" stop-color="#EC4899"/></linearGradient>
+    <linearGradient id="brandFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A855F7" stop-opacity="0.35"/><stop offset="1" stop-color="#A855F7" stop-opacity="0"/></linearGradient>
+  </defs>
+  <style>
+    text { font-family: "Segoe UI", Ubuntu, "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #e6edf3; }
+    .title { font-size: 17px; font-weight: 700; fill: url(#brand); }
+    .sub { font-size: 11.5px; fill: #8b949e; }
+    .label { font-size: 13px; fill: #8b949e; }
+    .value { font-size: 14px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .fade { opacity: 0; animation: fade 0.6s ease-out forwards; }
+    @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .fade { animation: none; opacity: 1; } * { animation: none !important; } }
+  </style>
+  <rect x="0.5" y="0.5" width="829" height="259" rx="12" fill="#161b22" stroke="#30363d"/>
+  <rect x="0.5" y="0.5" width="829" height="3" rx="1.5" fill="url(#brand)"/>
+  <defs><linearGradient id="barFill" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#6366F1"/><stop offset="1" stop-color="#EC4899"/></linearGradient></defs>
+    <text x="25" y="38" class="title">Contribution activity</text>
+    <text x="25" y="55" class="sub">last 16 weeks · 330 contributions · best week 01/11 with 125</text>
+    <line x1="50" x2="805" y1="220" y2="220" stroke="#21262d" stroke-dasharray="0"/>
+      <text x="40" y="224" class="sub" text-anchor="end">0</text>
+<line x1="50" x2="805" y1="185" y2="185" stroke="#21262d" stroke-dasharray="3 4"/>
+      <text x="40" y="189" class="sub" text-anchor="end">35</text>
+<line x1="50" x2="805" y1="150" y2="150" stroke="#21262d" stroke-dasharray="3 4"/>
+      <text x="40" y="154" class="sub" text-anchor="end">70</text>
+<line x1="50" x2="805" y1="115" y2="115" stroke="#21262d" stroke-dasharray="3 4"/>
+      <text x="40" y="119" class="sub" text-anchor="end">105</text>
+<line x1="50" x2="805" y1="80" y2="80" stroke="#21262d" stroke-dasharray="3 4"/>
+      <text x="40" y="84" class="sub" text-anchor="end">140</text>
+    <rect x="59.0" y="218" width="29.3" height="2" rx="1" fill="#21262d"/>
+<rect x="106.2" y="218" width="29.3" height="2" rx="1" fill="#21262d"/><text x="120.8" y="242" class="sub" text-anchor="middle">02/08</text>
+<rect x="153.3" y="218" width="29.3" height="2" rx="1" fill="#21262d"/>
+<rect x="200.5" y="220" width="29.3" height="0" rx="5" fill="url(#barFill)"><title>Week of 2026-08-16: 44</title>
+        <animate attributeName="height" from="0" to="44.0" dur="0.8s" begin="0.35s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+        <animate attributeName="y" from="220" to="176.0" dur="0.8s" begin="0.35s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+      </rect>
+      <text x="215.2" y="168.0" text-anchor="middle" class="value fade" style="font-size:11.5px;animation-delay:1.05s">44</text><text x="215.2" y="242" class="sub" text-anchor="middle">16/08</text>
+<rect x="247.7" y="220" width="29.3" height="0" rx="5" fill="url(#barFill)"><title>Week of 2026-08-23: 23</title>
+        <animate attributeName="height" from="0" to="23.0" dur="0.8s" begin="0.40s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+        <animate attributeName="y" from="220" to="197.0" dur="0.8s" begin="0.40s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+      </rect>
+      <text x="262.3" y="189.0" text-anchor="middle" class="value fade" style="font-size:11.5px;animation-delay:1.10s">23</text>
+<rect x="294.9" y="220" width="29.3" height="0" rx="5" fill="url(#barFill)"><title>Week of 2026-08-30: 52</title>
+        <animate attributeName="height" from="0" to="52.0" dur="0.8s" begin="0.45s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+        <animate attributeName="y" from="220" to="168.0" dur="0.8s" begin="0.45s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+      </rect>
+      <text x="309.5" y="160.0" text-anchor="middle" class="value fade" style="font-size:11.5px;animation-delay:1.15s">52</text><text x="309.5" y="242" class="sub" text-anchor="middle">30/08</text>
+<rect x="342.1" y="220" width="29.3" height="0" rx="5" fill="url(#barFill)"><title>Week of 2026-09-06: 28</title>
+        <animate attributeName="height" from="0" to="28.0" dur="0.8s" begin="0.50s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+        <animate attributeName="y" from="220" to="192.0" dur="0.8s" begin="0.50s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+      </rect>
+      <text x="356.7" y="184.0" text-anchor="middle" class="value fade" style="font-size:11.5px;animation-delay:1.20s">28</text>
+<rect x="389.3" y="220" width="29.3" height="0" rx="5" fill="url(#barFill)"><title>Week of 2026-09-13: 8</title>
+        <animate attributeName="height" from="0" to="8.0" dur="0.8s" begin="0.55s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+        <animate attributeName="y" from="220" to="212.0" dur="0.8s" begin="0.55s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+      </rect>
+      <text x="403.9" y="204.0" text-anchor="middle" class="value fade" style="font-size:11.5px;animation-delay:1.25s">8</text><text x="403.9" y="242" class="sub" text-anchor="middle">13/09</text>
+<rect x="436.5" y="220" width="29.3" height="0" rx="5" fill="url(#barFill)"><title>Week of 2026-09-20: 13</title>
+        <animate attributeName="height" from="0" to="13.0" dur="0.8s" begin="0.60s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+        <animate attributeName="y" from="220" to="207.0" dur="0.8s" begin="0.60s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+      </rect>
+      <text x="451.1" y="199.0" text-anchor="middle" class="value fade" style="font-size:11.5px;animation-delay:1.30s">13</text>
+<rect x="483.7" y="218" width="29.3" height="2" rx="1" fill="#21262d"/><text x="498.3" y="242" class="sub" text-anchor="middle">27/09</text>
+<rect x="530.8" y="218" width="29.3" height="2" rx="1" fill="#21262d"/>
+<rect x="578.0" y="218" width="29.3" height="2" rx="1" fill="#21262d"/><text x="592.7" y="242" class="sub" text-anchor="middle">11/10</text>
+<rect x="625.2" y="218" width="29.3" height="2" rx="1" fill="#21262d"/>
+<rect x="672.4" y="218" width="29.3" height="2" rx="1" fill="#21262d"/><text x="687.0" y="242" class="sub" text-anchor="middle">25/10</text>
+<rect x="719.6" y="220" width="29.3" height="0" rx="5" fill="url(#barFill)"><title>Week of 2026-11-01: 125</title>
+        <animate attributeName="height" from="0" to="125.0" dur="0.8s" begin="0.90s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+        <animate attributeName="y" from="220" to="95.0" dur="0.8s" begin="0.90s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+      </rect>
+      <text x="734.2" y="87.0" text-anchor="middle" class="value fade" style="font-size:11.5px;animation-delay:1.60s">125</text>
+<rect x="766.8" y="220" width="29.3" height="0" rx="5" fill="url(#barFill)"><title>Week of 2026-11-08: 37</title>
+        <animate attributeName="height" from="0" to="37.0" dur="0.8s" begin="0.95s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+        <animate attributeName="y" from="220" to="183.0" dur="0.8s" begin="0.95s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+      </rect>
+      <text x="781.4" y="175.0" text-anchor="middle" class="value fade" style="font-size:11.5px;animation-delay:1.65s">37</text><text x="781.4" y="242" class="sub" text-anchor="middle">08/11</text>
+</svg>

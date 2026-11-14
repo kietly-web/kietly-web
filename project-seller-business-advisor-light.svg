@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="830" height="140" viewBox="0 0 830 140" role="img" aria-label="Shopee Seller Advisor">
+  <defs>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6366F1"/><stop offset="0.5" stop-color="#A855F7"/><stop offset="1" stop-color="#EC4899"/></linearGradient>
+    <linearGradient id="brandFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A855F7" stop-opacity="0.35"/><stop offset="1" stop-color="#A855F7" stop-opacity="0"/></linearGradient>
+  </defs>
+  <style>
+    text { font-family: "Segoe UI", Ubuntu, "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1f2328; }
+    .title { font-size: 17px; font-weight: 700; fill: url(#brand); }
+    .sub { font-size: 11.5px; fill: #656d76; }
+    .label { font-size: 13px; fill: #656d76; }
+    .value { font-size: 14px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .fade { opacity: 0; animation: fade 0.6s ease-out forwards; }
+    @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .fade { animation: none; opacity: 1; } * { animation: none !important; } }
+  </style>
+  <rect x="0.5" y="0.5" width="829" height="139" rx="12" fill="#ffffff" stroke="#d0d7de"/>
+  <rect x="0.5" y="0.5" width="829" height="3" rx="1.5" fill="url(#brand)"/>
+  <text x="25" y="38" class="title">Shopee Seller Advisor</text>
+    <text x="25" y="55" class="sub">kietly-web/seller-business-advisor</text>
+    <text x="25" y="80" style="font-size:13px">AI decision assistant that turns a small Shopee seller&apos;s exported data and unit costs into at most 5 explained</text>
+<text x="25" y="98" style="font-size:13px">actions a week, then measures whether each one paid off.</text>
+    <text x="25" y="124" class="sub" style="font-size:12px"><tspan fill="#3178c6">●</tspan> TypeScript<tspan fill="#d0d7de">  ·  </tspan>88 commits<tspan fill="#d0d7de">  ·  </tspan>32 PRs merged<tspan fill="#d0d7de">  ·  </tspan>★ 0</text>
+</svg>

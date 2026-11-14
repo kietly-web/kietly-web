@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="495" height="195" viewBox="0 0 495 195" role="img" aria-label="Kiet Ly&apos;s GitHub stats">
+  <defs>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6366F1"/><stop offset="0.5" stop-color="#A855F7"/><stop offset="1" stop-color="#EC4899"/></linearGradient>
+    <linearGradient id="brandFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A855F7" stop-opacity="0.35"/><stop offset="1" stop-color="#A855F7" stop-opacity="0"/></linearGradient>
+  </defs>
+  <style>
+    text { font-family: "Segoe UI", Ubuntu, "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1f2328; }
+    .title { font-size: 17px; font-weight: 700; fill: url(#brand); }
+    .sub { font-size: 11.5px; fill: #656d76; }
+    .label { font-size: 13px; fill: #656d76; }
+    .value { font-size: 14px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .fade { opacity: 0; animation: fade 0.6s ease-out forwards; }
+    @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .fade { animation: none; opacity: 1; } * { animation: none !important; } }
+  </style>
+  <rect x="0.5" y="0.5" width="494" height="194" rx="12" fill="#ffffff" stroke="#d0d7de"/>
+  <rect x="0.5" y="0.5" width="494" height="3" rx="1.5" fill="url(#brand)"/>
+  <text x="25" y="38" class="title">GitHub at a glance</text>
+    <text x="25" y="55" class="sub">past 12 months</text>
+    <g class="fade" style="animation-delay:0.1s">
+      <circle cx="31" cy="78" r="3.5" fill="url(#brand)"/>
+      <text x="44" y="82" class="label">Contributions</text>
+      <text x="270" y="82" class="value" text-anchor="end">332</text>
+    </g>
+<g class="fade" style="animation-delay:0.2s">
+      <circle cx="31" cy="102" r="3.5" fill="url(#brand)"/>
+      <text x="44" y="106" class="label">Commits</text>
+      <text x="270" y="106" class="value" text-anchor="end">273</text>
+    </g>
+<g class="fade" style="animation-delay:0.30000000000000004s">
+      <circle cx="31" cy="126" r="3.5" fill="url(#brand)"/>
+      <text x="44" y="130" class="label">PRs merged</text>
+      <text x="270" y="130" class="value" text-anchor="end">51</text>
+    </g>
+<g class="fade" style="animation-delay:0.4s">
+      <circle cx="31" cy="150" r="3.5" fill="url(#brand)"/>
+      <text x="44" y="154" class="label">Code reviews</text>
+      <text x="270" y="154" class="value" text-anchor="end">0</text>
+    </g>
+<g class="fade" style="animation-delay:0.5s">
+      <circle cx="31" cy="174" r="3.5" fill="url(#brand)"/>
+      <text x="44" y="178" class="label">Public repos</text>
+      <text x="270" y="178" class="value" text-anchor="end">5</text>
+    </g>
+    <g transform="translate(392 104)">
+    <circle r="52" fill="none" stroke="#eaeef2" stroke-width="9"/>
+    <circle r="52" fill="none" stroke="url(#brand)" stroke-width="9" stroke-linecap="round" transform="rotate(-90)"
+      stroke-dasharray="326.7" stroke-dashoffset="326.7">
+      <animate attributeName="stroke-dashoffset" from="326.7" to="326.7" dur="1.2s" begin="0.3s" fill="freeze" calcMode="spline" keySplines="0.3 0 0.2 1" keyTimes="0;1"/>
+    </circle>
+    <text y="6" text-anchor="middle" style="font-size:30px;font-weight:800;fill:url(#brand)">0</text>
+    <text y="26" text-anchor="middle" class="sub">day streak</text>
+  </g>
+  <text x="392" y="180" text-anchor="middle" class="sub">longest 6 days</text>
+</svg>
