@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Healthcare Value Chain Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,750&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a care route. Stages are stops on one line; Skedulo's stretch is the solid teal segment. Tabs sit under a quiet header; the flow map is the one bold element. */
+:root {
+  --paper: #EEF3F2;
+  --surface: #FFFFFF;
+  --ink: #10242F;
+  --muted: #536A73;
+  --line: #CFDCDA;
+  --band: #E4ECEB;
+  --route: #0A7469;
+  --route-tint: rgba(10,116,105,.08);
+  --on-route: #FFFFFF;
+  --f-money: #A86B0F;
+  --f-service: #B8335F;
+  --f-data: #2558BC;
+  --f-auth: #6544B0;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --step--1: .875rem;
+  --step-0: 1rem;
+  --step-1: 1.2rem;
+  --step-2: 1.5rem;
+  --step-3: 2.1rem;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0E191E; --surface: #15232A; --ink: #E3ECEA; --muted: #93A8AE; --line: #2A3D45; --band: #122026;
+    --route: #3CC2B1; --route-tint: rgba(60,194,177,.10); --on-route: #062421;
+    --f-money: #E2AA4E; --f-service: #EC7A9D; --f-data: #79A3F2; --f-auth: #AE94F3;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0E191E; --surface: #15232A; --ink: #E3ECEA; --muted: #93A8AE; --line: #2A3D45; --band: #122026;
+  --route: #3CC2B1; --route-tint: rgba(60,194,177,.10); --on-route: #062421;
+  --f-money: #E2AA4E; --f-service: #EC7A9D; --f-data: #79A3F2; --f-auth: #AE94F3;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: var(--step-0); line-height: 1.55; }
+a { color: var(--route); text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--route); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: var(--step-3); font-weight: 750; letter-spacing: -.01em; }
+h2 { font-size: var(--step-2); font-weight: 650; }
+h3 { font-size: var(--step-1); font-weight: 650; }
+p { margin: 0; max-width: 68ch; }
+.wrap { max-width: 1260px; margin: 0 auto; padding: 0 20px; }
+
+header.top { padding: 28px 0 0; }
+.top .wrap { display: grid; gap: 10px; }
+.top p.lead { color: var(--muted); font-size: var(--step-1); max-width: 62ch; }
+nav.tabs { position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1px solid var(--line); margin-top: 18px; }
+nav.tabs .wrap { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: thin; }
+nav.tabs a { flex: none; padding: 12px 12px 10px; color: var(--muted); text-decoration: none; font-weight: 700; font-size: var(--step--1); border-bottom: 3px solid transparent; }
+nav.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--route); }
+nav.tabs a:hover { color: var(--ink); }
+
+main { padding: 28px 0 64px; }
+section.view { display: none; }
+section.view.on { display: grid; gap: 28px; }
+.stack { display: grid; gap: 12px; align-content: start; }
+.muted { color: var(--muted); }
+.small { font-size: var(--step--1); }
+
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: var(--step--1); }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { font-weight: 700; background: var(--band); color: var(--ink); position: sticky; top: 0; }
+tr:last-child td { border-bottom: 0; }
+td.id, th.id { font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--muted); font-weight: 700; }
+td strong { color: var(--ink); }
+
+/* Route strip: the signature element */
+.route-strip { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 10px; overflow-x: auto; }
+.route-strip svg { display: block; min-width: 820px; width: 100%; height: auto; }
+.rs-label { font-family: var(--font-display); font-size: 13px; font-weight: 650; fill: var(--ink); }
+.rs-sub { font-size: 11.5px; fill: var(--muted); }
+.rs-line { stroke: var(--line); stroke-width: 4; stroke-linecap: round; }
+.rs-own { stroke: var(--route); stroke-width: 10; stroke-linecap: round; }
+.rs-feed { stroke: var(--route); stroke-width: 4; stroke-dasharray: 2 8; stroke-linecap: round; }
+.rs-stop { fill: var(--surface); stroke: var(--ink); stroke-width: 2.5; }
+.rs-stop.own { stroke: var(--route); fill: var(--route); }
+.rs-stop.feed { stroke: var(--route); }
+.rs-role { font-size: 11.5px; fill: var(--muted); }
+.rs-role.own { fill: var(--route); font-weight: 700; }
+
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.region-lines { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.region-lines li { display: grid; grid-template-columns: 9.5rem 1fr; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.region-lines li b { font-family: var(--font-display); font-weight: 650; }
+@media (max-width: 560px) { .region-lines li { grid-template-columns: 1fr; gap: 2px; } }
+.callout { border-left: 4px solid var(--route); padding: 4px 0 4px 16px; }
+
+/* Controls */
+.controls { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center; }
+.group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.group > .glabel { font-weight: 700; font-size: var(--step--1); margin-right: 4px; }
+button { font: inherit; }
+.seg, .chip, .btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 12px; font-size: var(--step--1); cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.seg[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.chip[aria-pressed="false"] { opacity: .5; text-decoration: line-through; }
+.btn.primary { background: var(--route); color: var(--on-route); border-color: var(--route); font-weight: 700; }
+.btn:disabled { opacity: .4; cursor: default; }
+.sw { width: 18px; height: 0; border-top: 3px solid currentColor; display: inline-block; }
+.sw.M { color: var(--f-money); } .sw.S { color: var(--f-service); } .sw.D { color: var(--f-data); } .sw.A { color: var(--f-auth); }
+
+/* Flow map */
+.mapgrid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; align-items: start; }
+.mapbox { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow-x: auto; }
+.mapbox svg { display: block; min-width: 1000px; width: 100%; height: auto; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--route); border-radius: 14px; padding: 18px 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px 32px; align-items: start; }
+.panel > .head { grid-column: 1 / -1; display: grid; gap: 8px; }
+.panel .kicker { color: var(--muted); font-size: var(--step--1); }
+.panel dl { margin: 0; display: grid; gap: 8px; }
+.panel dt { font-weight: 700; font-size: var(--step--1); }
+.panel dd { margin: 0; font-size: var(--step--1); }
+.panel ul { margin: 0; padding-left: 18px; font-size: var(--step--1); display: grid; gap: 4px; }
+.flowitem { cursor: pointer; }
+.flowitem:hover { text-decoration: underline; }
+.rolepill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 700; border: 1px solid var(--line); }
+.rolepill.owns { background: var(--route); color: var(--on-route); border-color: var(--route); }
+.rolepill.feeds { color: var(--route); border: 1.5px dashed var(--route); }
+
+.m-layerband { fill: var(--band); }
+.m-layername { font-family: var(--font-display); font-size: 14px; font-weight: 650; fill: var(--ink); }
+.m-layerid { font-size: 11.5px; fill: var(--muted); }
+.m-col { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 4; }
+.m-zone { fill: var(--route-tint); }
+.m-stage { font-family: var(--font-display); font-size: 12.5px; font-weight: 650; fill: var(--ink); cursor: pointer; }
+.m-stageid { font-size: 11px; fill: var(--muted); cursor: pointer; }
+.m-stage.sel, .m-stageid.sel { fill: var(--route); }
+.m-bar rect { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2; transition: opacity .2s; }
+.m-bar text { font-size: 12.5px; fill: var(--ink); pointer-events: none; }
+.m-bar text .eid { fill: var(--muted); font-weight: 700; }
+.m-bar { cursor: pointer; }
+.m-bar.sked rect { fill: var(--route); stroke: var(--route); }
+.m-bar.sked text, .m-bar.sked text .eid { fill: var(--on-route); }
+.m-bar.sel rect { stroke: var(--ink); stroke-width: 2.5; }
+.m-bar.dim { opacity: .28; }
+.m-bar:focus-visible rect { stroke: var(--route); stroke-width: 3; }
+.edge { fill: none; stroke-width: 1.6; transition: opacity .2s; }
+.edge.M { stroke: var(--f-money); } .edge.S { stroke: var(--f-service); stroke-width: 2.4; } .edge.D { stroke: var(--f-data); } .edge.A { stroke: var(--f-auth); stroke-dasharray: 5 3; }
+.edge.dim { opacity: .09; }
+.edge.hot { stroke-width: 2.6; }
+.edge.off, .hit.off { display: none; }
+.hit { fill: none; stroke: transparent; stroke-width: 10; cursor: pointer; }
+.mk-M { fill: var(--f-money); } .mk-S { fill: var(--f-service); } .mk-D { fill: var(--f-data); } .mk-A { fill: var(--f-auth); }
+.m-legend { font-size: 12px; fill: var(--muted); }
+.stepbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.stepnote { font-size: var(--step--1); color: var(--muted); }
+
+/* Filter inputs */
+.field { display: grid; gap: 4px; }
+.field label { font-weight: 700; font-size: var(--step--1); }
+input[type="search"], select { font: inherit; font-size: var(--step--1); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); min-width: 220px; }
+.formrow { display: flex; flex-wrap: wrap; gap: 14px; align-items: end; }
+
+/* Loop diagram */
+.loopbox { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; overflow-x: auto; }
+.loopbox svg { display: block; min-width: 640px; width: 100%; height: auto; }
+.lp-box { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2; }
+.lp-box.brake { stroke: var(--f-service); stroke-width: 1.6; }
+.lp-box.sked { fill: var(--route); stroke: var(--route); }
+.lp-t { font-size: 13px; fill: var(--ink); }
+.lp-t.b { font-family: var(--font-display); font-weight: 650; }
+.lp-t.on { fill: var(--on-route); }
+.lp-arrow { stroke: var(--muted); stroke-width: 1.4; fill: none; }
+.lp-mk { fill: var(--muted); }
+
+/* Playbook */
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.checks li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.checks input { margin-top: 4px; accent-color: var(--route); }
+.checks .tag { font-size: 12px; color: var(--muted); display: block; }
+.status { font-size: var(--step--1); color: var(--route); min-height: 1.4em; }
+
+.glgroup { display: grid; gap: 4px; }
+.gl { display: grid; grid-template-columns: minmax(10rem, 15rem) 1fr; gap: 6px 20px; padding: 12px 0; border-top: 1px solid var(--line); }
+.gl dt { font-family: var(--font-display); font-weight: 650; font-size: var(--step-0); }
+.gl dt .rg { display: block; font-family: var(--font-body); font-weight: 400; font-size: 12.5px; color: var(--muted); }
+.gl dd { margin: 0; max-width: 70ch; }
+.gl dd .eg { display: block; color: var(--muted); font-size: var(--step--1); margin-top: 2px; }
+@media (max-width: 560px) { .gl { grid-template-columns: 1fr; } }
+.sources { columns: 2 320px; column-gap: 32px; padding-left: 18px; margin: 0; font-size: var(--step--1); }
+.sources li { break-inside: avoid; margin-bottom: 6px; }
+footer { border-top: 1px solid var(--line); padding: 18px 0 32px; color: var(--muted); font-size: var(--step--1); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>The healthcare value chain, and where Skedulo sits</h1>
+    <p class="lead">How care at home is funded, delivered, proven and paid for in the US, Australia, the UK, Canada and ASEAN, and which links depend on Skedulo.</p>
+  </div>
+  <nav class="tabs" aria-label="Sections">
+    <div class="wrap" id="tabbar">
+      <a href="#overview" data-view="overview">Overview</a>
+      <a href="#flow-map" data-view="flow-map">Flow map</a>
+      <a href="#entities" data-view="entities">Entities and flows</a>
+      <a href="#demand" data-view="demand">Demand side</a>
+      <a href="#regions" data-view="regions">Regions</a>
+      <a href="#players" data-view="players">Key players</a>
+      <a href="#playbook" data-view="playbook">Support playbook</a>
+      <a href="#glossary" data-view="glossary">Glossary</a>
+      <a href="#sources" data-view="sources">Sources</a>
+    </div>
+  </nav>
+</header>
+
+<main class="wrap">
+
+<!-- OVERVIEW -->
+<section class="view" id="v-overview" aria-labelledby="h-overview">
+  <div class="stack">
+    <h2 id="h-overview">Skedulo turns funded care into visits, and its records decide who gets paid</h2>
+    <p>Care outside hospitals moves through eight stages, from funding to the worker's pay. Upstream systems hold the money, the client record and the care plan. Downstream systems run claims and payroll. Skedulo owns rostering and the visit itself, and the actual times it records feed both claims and pay.</p>
+  </div>
+  <div class="route-strip" id="routeStrip" role="img" aria-label="Eight stages of the care chain, with Skedulo owning stages 5 and 6 and feeding stages 7 and 8"></div>
+  <div class="two">
+    <div class="stack">
+      <h3>What changes by region</h3>
+      <ul class="region-lines">
+        <li><b>United States</b><span>Many payers. Medicaid visits must pass Electronic Visit Verification, and states began denying unmatched claims in 2026.</span></li>
+        <li><b>Australia</b><span>Two national funders (NDIA and Services Australia) and the SCHADS Award. Skedulo's deepest product: the AU Healthcare package with Lumary and payroll.</span></li>
+        <li><b>United Kingdom</b><span>Councils and the NHS buy most care. CQC, NHS digital standards and UK GDPR shape the stack.</span></li>
+        <li><b>Canada</b><span>Provinces contract providers; in Ontario one agency coordinates over 150 of them.</span></li>
+        <li><b>ASEAN</b><span>Singapore has a funded system much like Australia's. Elsewhere, families and private payers still carry most care.</span></li>
+      </ul>
+    </div>
+    <div class="stack">
+      <h3>Why demand keeps growing</h3>
+      <p>People want to age at home, home is cheaper than a nursing home for most needs, and populations are ageing fast. Funding and workers are the brakes, so waiting lists grow. Providers have to deliver more care per worker hour, which is the value Skedulo sells.</p>
+      <p class="callout">For support work: most healthcare tickets that look like scheduling problems break at a handoff. Check client data coming in, timesheets going to payroll, or delivered services going to billing. The <a href="#playbook">support playbook</a> sorts the checks by region.</p>
+      <p class="muted small">Explore the full picture on the <a href="#flow-map">flow map</a>: every entity, every money, data, service and authority flow, and a step-by-step walk through one client's journey.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FLOW MAP -->
+<section class="view" id="v-flow-map" aria-labelledby="h-flow">
+  <div class="stack">
+    <h2 id="h-flow">Flow map</h2>
+    <p class="muted">Each bar is an entity, placed in its layer and stretched across the stages it acts in. Arrows are flows. Select a bar, an arrow or a stage name to see what moves, or walk through one client's journey stage by stage.</p>
+  </div>
+  <div class="controls">
+    <div class="group" role="group" aria-label="Region">
+      <span class="glabel">Region</span>
+      <button class="seg" data-region="us">United States</button>
+      <button class="seg" data-region="au">Australia</button>
+      <button class="seg" data-region="uk">UK</button>
+      <button class="seg" data-region="ca">Canada</button>
+      <button class="seg" data-region="asean">ASEAN</button>
+    </div>
+    <div class="group" role="group" aria-label="Flow types">
+      <span class="glabel">Show flows</span>
+      <button class="chip" data-type="M" aria-pressed="true"><span class="sw M"></span>Money</button>
+      <button class="chip" data-type="S" aria-pressed="true"><span class="sw S"></span>Service</button>
+      <button class="chip" data-type="D" aria-pressed="true"><span class="sw D"></span>Data</button>
+      <button class="chip" data-type="A" aria-pressed="true"><span class="sw A"></span>Authority</button>
+    </div>
+  </div>
+  <div class="stepbar">
+    <button class="btn primary" id="walkStart">Walk through one client</button>
+    <button class="btn" id="walkPrev" disabled>Previous stage</button>
+    <button class="btn" id="walkNext" disabled>Next stage</button>
+    <button class="btn" id="clearSel">Show everything</button>
+    <span class="stepnote" id="walkNote"></span>
+  </div>
+  <div class="mapgrid">
+    <div class="mapbox" id="mapbox"></div>
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </div>
+</section>
+
+<!-- ENTITIES -->
+<section class="view" id="v-entities" aria-labelledby="h-ent">
+  <div class="stack">
+    <h2 id="h-ent">Entities and flows</h2>
+    <p class="muted">The model behind the flow map. Search to filter both tables; IDs match the map.</p>
+  </div>
+  <form class="formrow" id="entForm" role="search">
+    <div class="field"><label for="entSearch">Search</label><input type="search" id="entSearch" placeholder="Try payroll, EVV or Lumary"></div>
+    <div class="field"><label for="entType">Flow type</label>
+      <select id="entType"><option value="">All types</option><option value="M">Money</option><option value="S">Service</option><option value="D">Data</option><option value="A">Authority</option></select>
+    </div>
+  </form>
+  <div class="stack"><h3>Layers and stages</h3><div class="tablewrap" id="tblStages"></div></div>
+  <div class="stack"><h3>Entities</h3><div class="tablewrap" id="tblEnt"></div></div>
+  <div class="stack"><h3>Flows</h3><div class="tablewrap" id="tblFlows"></div></div>
+</section>
+
+<!-- DEMAND -->
+<section class="view" id="v-demand" aria-labelledby="h-dem">
+  <div class="stack">
+    <h2 id="h-dem">Demand side: who receives care, why, and who pays</h2>
+    <p>The end user is the person receiving care at home or in the community, often with a family member arranging it. They rarely pay the full cost: governments and insurers pay most, and the client pays a share or tops it up. Need grows faster than funding and the workforce, so budgets and staff set how much care is delivered.</p>
+  </div>
+  <div class="stack"><h3>Who the end users are</h3><div class="tablewrap" id="tblSeg"></div></div>
+  <div class="two">
+    <div class="stack">
+      <h3>Why they choose care at home</h3>
+      <ul class="region-lines">
+        <li><b>Preference</b><span>In AARP's 2024 survey, 75% of US adults aged 50+ want to stay in their home as they age, and 73% in their community.</span></li>
+        <li><b>Cost</b><span>US 2025 medians: $35 an hour for a non-medical caregiver ($80,080 a year at 44 hours a week) against $129,575 a year for a private nursing-home room.</span></li>
+        <li><b>Policy</b><span>Funders steer care home. Australia's Support at Home came out of the Royal Commission into Aged Care; England pools council and NHS money in the Better Care Fund.</span></li>
+        <li><b>Demography</b><span>US households led by people aged 80+ will double by 2040. About one in five Australians will be over 65 by 2063. Every ASEAN state will be ageing, aged or super-aged by 2050.</span></li>
+      </ul>
+    </div>
+    <div class="stack">
+      <h3>What keeps demand growing, and what holds it back</h3>
+      <div class="loopbox" id="loopbox"></div>
+      <p class="small muted">NDIS participants reached 782,013 in June 2026 (+6% in a year). 106,977 older Australians waited for a Support at Home place on 30 June 2026. About 650,000 people sat on US Medicaid home-care waiting lists in KFF's 2026 survey.</p>
+    </div>
+  </div>
+  <div class="stack"><h3>How they pay</h3><div class="tablewrap" id="tblPay"></div></div>
+</section>
+
+<!-- REGIONS -->
+<section class="view" id="v-regions" aria-labelledby="h-reg">
+  <div class="stack">
+    <h2 id="h-reg">Regions</h2>
+    <p class="muted">The shape of the chain stays the same. Who pays, what counts as proof, which rules govern pay and which privacy law applies all change, and each changes what Skedulo must capture and send.</p>
+  </div>
+  <div class="group" role="group" aria-label="Choose a region">
+    <button class="seg" data-rgn="us">United States</button>
+    <button class="seg" data-rgn="au">Australia</button>
+    <button class="seg" data-rgn="uk">United Kingdom</button>
+    <button class="seg" data-rgn="ca">Canada and New Zealand</button>
+    <button class="seg" data-rgn="asean">ASEAN</button>
+  </div>
+  <div id="regionBody" class="stack"></div>
+  <div class="stack"><h3>All regions side by side</h3><div class="tablewrap" id="tblOverlay"></div></div>
+</section>
+
+<!-- PLAYERS -->
+<section class="view" id="v-players" aria-labelledby="h-pl">
+  <div class="stack">
+    <h2 id="h-pl">Key players</h2>
+    <p class="muted">Names are examples, not a full market map. Skedulo competes in scheduling and integrates with care platforms and payroll.</p>
+  </div>
+  <div class="tablewrap" id="tblPlayers"></div>
+  <div class="stack">
+    <h3>Does anyone cover the whole chain?</h3>
+    <p>No. Funding belongs to governments and insurers, and only in the US does one group own both the insurer and the providers. Three kinds of player come closest.</p>
+  </div>
+  <div class="tablewrap" id="tblWhole"></div>
+</section>
+
+<!-- PLAYBOOK -->
+<section class="view" id="v-playbook" aria-labelledby="h-pb">
+  <div class="stack">
+    <h2 id="h-pb">Support playbook</h2>
+    <p class="muted">Place the ticket on the chain first: is the failure coming in to Skedulo, inside it, or going out? Outbound failures often surface days later in finance or payroll.</p>
+  </div>
+  <form class="formrow" id="triage">
+    <div class="field"><label for="tRegion">Customer region</label>
+      <select id="tRegion"><option value="au">Australia</option><option value="us">United States</option><option value="uk">United Kingdom</option><option value="ca">Canada or New Zealand</option><option value="asean">ASEAN</option></select>
+    </div>
+    <div class="field"><label for="tWhere">Where it seems to break</label>
+      <select id="tWhere">
+        <option value="in">Coming in: clients, funding or workers</option>
+        <option value="inside">Inside Skedulo: rosters, visits, mobile</option>
+        <option value="out" selected>Going out: payroll, billing or claims</option>
+        <option value="unsure">Not sure yet</option>
+      </select>
+    </div>
+    <button class="btn" type="button" id="copyChecks">Copy checklist</button>
+  </form>
+  <div class="stack">
+    <h3 id="checkTitle">Checks</h3>
+    <ul class="checks" id="checkList"></ul>
+    <div class="status" id="copyStatus" role="status"></div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<section class="view" id="v-glossary" aria-labelledby="h-gl">
+  <div class="stack">
+    <h2 id="h-gl">Glossary in plain words</h2>
+    <p class="muted">Every term used on this page, explained simply. Search, or pick a group to narrow the list.</p>
+  </div>
+  <form class="formrow" id="glForm" role="search">
+    <div class="field"><label for="glSearch">Find a term</label><input type="search" id="glSearch" placeholder="Try EVV, SCHADS or means test"></div>
+    <div class="field"><label for="glGroup">Group</label><select id="glGroup"></select></div>
+  </form>
+  <p class="small muted" id="glCount" role="status"></p>
+  <div id="glBody" class="stack"></div>
+</section>
+
+<!-- SOURCES -->
+<section class="view" id="v-sources" aria-labelledby="h-src">
+  <div class="stack">
+    <h2 id="h-src">Sources</h2>
+    <p class="muted">Checked 17 November 2026.</p>
+  </div>
+  <div class="stack"><h3>External</h3><ul class="sources" id="srcExt"></ul></div>
+</section>
+
+</main>
+<footer><div class="wrap">Built from the document "Healthcare Value Chain &amp; Where Skedulo Sits" (17 November 2026). Not legal or financial advice.</div></footer>
+
+<script>
+const REGIONS = { us: 'United States', au: 'Australia', uk: 'United Kingdom', ca: 'Canada (Ontario)', asean: 'ASEAN (Singapore example)' };
+const TYPES = { M: 'Money', S: 'Service', D: 'Data', A: 'Authority' };
+
+const LAYERS = [
+  { id: 'L1', name: 'Demand', sub: 2, what: 'The people who receive care and their families' },
+  { id: 'L2', name: 'Funding and access', sub: 3, what: 'Taxpayers, public funders, insurers, assessors, referral sources' },
+  { id: 'L3', name: 'Delivery', sub: 3, what: 'Provider organisations, schedulers, frontline workers, suppliers' },
+  { id: 'L4', name: 'Systems', sub: 3, what: 'Care platform or EHR, Skedulo, payroll, claims channels, HR' },
+  { id: 'L5', name: 'Oversight', sub: 2, what: 'Care quality regulators and privacy regulators' }
+];
+
+const STAGES = [
+  { id: 'S1', name: 'Fund and regulate', lines: ['Fund and', 'regulate'], what: 'Budgets, prices, eligibility rules and standards are set.', role: 'none' },
+  { id: 'S2', name: 'Assess and authorise', lines: ['Assess and', 'authorise'], what: 'Need is assessed; a plan, level or hours are approved.', role: 'none' },
+  { id: 'S3', name: 'Refer and intake', lines: ['Refer and', 'intake'], what: 'The provider records the client, agreement and budget.', role: 'receives' },
+  { id: 'S4', name: 'Plan care and budget', lines: ['Plan care', 'and budget'], what: 'The care plan becomes service demand.', role: 'receives' },
+  { id: 'S5', name: 'Roster and schedule', lines: ['Roster and', 'schedule'], what: 'Workers are matched, rostered and routed.', role: 'owns' },
+  { id: 'S6', name: 'Deliver and record', lines: ['Deliver and', 'record'], what: 'The visit happens: check-in and out, notes, forms, incidents.', role: 'owns' },
+  { id: 'S7', name: 'Verify, claim and bill', lines: ['Verify, claim', 'and bill'], what: 'Visit data is verified, claims and invoices go out, payment comes in.', role: 'feeds' },
+  { id: 'S8', name: 'Pay the workforce', lines: ['Pay the', 'workforce'], what: 'Timesheets go through pay rules and wages are paid.', role: 'feeds' }
+];
+const ROLE = { none: 'Skedulo not involved', receives: 'Skedulo receives data', owns: 'Skedulo owns this stage', feeds: 'Skedulo feeds the data' };
+
+const ENT = [
+  { id: 'E01', short: 'Client', name: 'Client, participant or patient', layer: 'L1', s: [2, 7], row: 0, holds: 'Needs, preferences, consent, co-payment', ex: 'Older person, person with disability, patient just out of hospital' },
+  { id: 'E02', short: 'Family and carers', name: 'Family and unpaid carers', layer: 'L1', s: [2, 6], row: 1, holds: 'Decisions, unpaid care time', ex: 'Adult children, spouses, parents of children with complex needs' },
+  { id: 'E03', short: 'Taxpayers', name: 'Taxpayers and premium payers', layer: 'L2', s: [1, 1], row: 0, holds: 'Money', ex: 'Citizens, employers' },
+  { id: 'E06', short: 'Assessor', name: 'Assessor or care coordinator', layer: 'L2', s: [2, 2], row: 0, holds: 'Needs assessment, approved level', ex: 'Planners, assessors, social workers',
+    reg: { us: 'Ordering physician, agency OASIS assessment, managed-care care manager', au: 'Aged care assessors via My Aged Care; NDIA planners, local area coordinators, support coordinators', uk: 'Council social workers, NHS discharge and community teams', ca: 'Ontario Health atHome care coordinators, Ontario Health Teams', asean: 'Formal needs and means assessment in Singapore; informal in most other countries' } },
+  { id: 'E07', short: 'Referrer', name: 'Referral source', layer: 'L2', s: [3, 3], row: 0, holds: 'Discharge summary, diagnosis, urgency', ex: 'Hospitals, GPs, physicians, the client or family' },
+  { id: 'E04', short: 'Public funder', name: 'Public funder', layer: 'L2', s: [1, 7], row: 1, holds: 'Budget, price list, eligibility rules', ex: 'Government schemes',
+    reg: { us: 'State Medicaid programmes and CMS (Medicare home health)', au: 'NDIA (NDIS, through PACE); Services Australia (Support at Home); CHSP', uk: 'Councils (adult social care) and NHS ICBs', ca: 'Ontario Health atHome on behalf of the province', asean: 'Singapore MOH and AIC; Thailand NHSO; limited public funding elsewhere' } },
+  { id: 'E05', short: 'Insurer or plan', name: 'Insurer or managed-care plan', layer: 'L2', s: [1, 7], row: 2, holds: 'Premiums, authorisations', ex: 'Health and long-term care insurers',
+    reg: { us: 'Medicaid managed-care plans, Medicare Advantage, long-term care insurers, commercial insurers', au: 'Limited role in care at home', uk: 'Rare; self-funders pay providers directly', ca: 'Private top-up insurance', asean: 'CareShield Life (Singapore); PhilHealth and BPJS cover hospital care, not long-term care at home' } },
+  { id: 'E08', short: 'Provider organisation', name: 'Provider organisation (back office)', layer: 'L3', s: [3, 7], row: 0, holds: 'Client record, contracts with staff, invoices', ex: "Skedulo's customers: home health and home care agencies, disability and aged care providers" },
+  { id: 'E09', short: 'Scheduler', name: 'Scheduler or rostering team', layer: 'L3', s: [4, 5], row: 1, holds: 'The roster', ex: "The provider's rostering or operations team" },
+  { id: 'E10', short: 'Frontline worker', name: 'Frontline worker', layer: 'L3', s: [6, 8], row: 1, holds: 'Skills, availability, location, what happened on the visit', ex: 'Nurses, aides, support workers, therapists' },
+  { id: 'E18', short: 'Suppliers', name: 'Suppliers', layer: 'L3', s: [6, 6], row: 2, holds: 'Equipment, consumables, medicines', ex: 'Medical supply vendors, pharmacies, assistive technology' },
+  { id: 'E11', short: 'Care platform or EHR', name: 'Care management platform or EHR', layer: 'L4', s: [3, 7], row: 0, holds: 'System of record for clients, plans, funding, clinical notes and billing', ex: 'Care management systems',
+    reg: { us: 'Homecare Homebase, WellSky, Axxess, AlayaCare, Netsmart, Epic', au: 'Lumary, Visualcare, SupportAbility, ShiftCare, AlayaCare', uk: 'The Access Group, Birdie, Nourish, everyLIFE PASS, CareLineLive', ca: 'AlayaCare, Procura', asean: 'Local and regional tools' } },
+  { id: 'E13', short: 'Payroll', name: 'Payroll and pay rules', layer: 'L4', s: [8, 8], row: 0, holds: 'Pay rates, award or contract rules, leave balances', ex: 'Payroll systems',
+    reg: { us: 'ADP, Workday, UKG, Viventium', au: '2cloudnine (Sage), Employment Hero/KeyPay, Easy Employer; SCHADS Award rules', uk: 'Payroll modules in Access and similar suites; National Living Wage', ca: 'Provincial payroll vendors', asean: 'National payroll providers; national labour law' } },
+  { id: 'E15', short: 'HR and screening', name: 'HR, screening and credentialing', layer: 'L4', s: [4, 5], row: 1, holds: 'Screening checks, licences, training expiry', ex: 'HR systems, worker screening registers' },
+  { id: 'E14', short: 'Claims channel', name: 'Claims or verification channel', layer: 'L4', s: [7, 7], row: 1, holds: 'Verified visits and claims', ex: 'Claims portals',
+    reg: { us: 'State EVV aggregators (Sandata, HHAeXchange); Medicaid and plan claims', au: 'my NDIS provider portal (PACE bulk payment requests); Aged Care Provider Portal or Services Australia API', uk: 'Council invoicing and visit monitoring set by contract', ca: 'Ontario Health atHome contract billing', asean: 'Subsidy claims in Singapore; private invoices elsewhere' } },
+  { id: 'E12', short: 'Skedulo', name: 'Skedulo (scheduling and mobile)', layer: 'L4', s: [5, 6], row: 2, holds: 'The roster, routes, actual times, visit forms', ex: 'Skedulo on Salesforce or standalone',
+    reg: { us: 'Standalone or on Salesforce Health Cloud; integrates with Epic and home-health EHRs; actuals must meet EVV rules', au: 'AU Healthcare package on Salesforce with Lumary and payroll packages (2cloudnine/Sage, Employment Hero, Easy Employer)', uk: 'Must integrate with an NHS-assured care record system', ca: 'Not researched for this review', asean: 'Singapore looks most like Australia; elsewhere private agencies' } },
+  { id: 'E16', short: 'Care quality regulator', name: 'Care quality regulator', layer: 'L5', s: [1, 7], row: 0, holds: 'Standards, registrations, audit findings', ex: 'Regulators',
+    reg: { us: 'CMS Conditions of Participation, state health departments, OIG', au: 'NDIS Quality and Safeguards Commission, Aged Care Quality and Safety Commission', uk: 'CQC', ca: 'Provincial health ministry', asean: 'Ministries of health and social welfare' } },
+  { id: 'E17', short: 'Privacy regulator', name: 'Privacy regulator', layer: 'L5', s: [1, 8], row: 1, holds: 'Privacy law, breach notices', ex: 'Privacy authorities',
+    reg: { us: 'HHS (HIPAA)', au: 'OAIC (Privacy Act), plus NSW, VIC and ACT health-records laws', uk: 'ICO (UK GDPR)', ca: 'Provincial privacy commissioners', asean: 'National data protection authorities (for example Singapore PDPA)' } }
+];
+const E = Object.fromEntries(ENT.map(e => [e.id, e]));
+
+const FLOWS = [
+  { id: 'F01', from: ['E03'], to: ['E04', 'E05'], type: 'M', what: 'Taxes and premiums', x: 1, st: 'S1' },
+  { id: 'F02', from: ['E01', 'E02'], to: ['E06'], type: 'D', what: 'Request for care, information about need', x: 2, st: 'S2' },
+  { id: 'F03', from: ['E06'], to: ['E04'], type: 'A', what: 'Approved level, plan or classification', x: 2, st: 'S2' },
+  { id: 'F04', from: ['E04'], to: ['E01'], type: 'A', what: 'Entitlement: plan, budget or authorised hours', x: 2, st: 'S2' },
+  { id: 'F05', from: ['E07'], to: ['E08'], type: 'D', what: 'Referral', x: 3, st: 'S3' },
+  { id: 'F06', from: ['E01'], to: ['E08'], type: 'A', what: 'Choice of provider, consent, service agreement', x: 3, st: 'S3' },
+  { id: 'F07', from: ['E11'], to: ['E12'], type: 'D', what: 'Clients, addresses, preferences, service requirements, funding limits', x: 4, st: 'S3, S4' },
+  { id: 'F08', from: ['E13', 'E15'], to: ['E12'], type: 'D', what: 'Workers as resources, skills, credentials, availability, leave', x: 5, st: 'S4, S5' },
+  { id: 'F09', from: ['E12'], to: ['E10'], type: 'D', what: 'Allocated jobs, rosters, routes', x: 5, st: 'S5' },
+  { id: 'F10', from: ['E10'], to: ['E01'], type: 'S', what: 'The care visit', x: 6, st: 'S6' },
+  { id: 'F11', from: ['E10'], to: ['E12'], type: 'D', what: 'Check-in and out, notes, forms, incidents', x: 6, st: 'S6' },
+  { id: 'F12', from: ['E12'], to: ['E11'], type: 'D', what: 'Delivered services and actual times', x: 7, st: 'S7' },
+  { id: 'F13', from: ['E12'], to: ['E14'], type: 'D', what: 'Visit-verification data (US, where Skedulo or a partner is the EVV system of record)', x: 7, st: 'S7' },
+  { id: 'F14', from: ['E11'], to: ['E04', 'E05'], type: 'D', what: 'Claims and invoices', x: 7, st: 'S7' },
+  { id: 'F15', from: ['E14'], to: ['E04'], type: 'D', what: 'Verified visits matched to claims (US)', x: 7, st: 'S7' },
+  { id: 'F16', from: ['E04', 'E05'], to: ['E08'], type: 'M', what: 'Payment for delivered care', x: 7, st: 'S7' },
+  { id: 'F17', from: ['E01'], to: ['E08'], type: 'M', what: 'Client contribution or private fee', x: 7, st: 'S7' },
+  { id: 'F18', from: ['E12'], to: ['E13'], type: 'D', what: 'Timesheets, leave shifts, costing', x: 8, st: 'S8' },
+  { id: 'F19', from: ['E13'], to: ['E10'], type: 'M', what: 'Wages', x: 8, st: 'S8' },
+  { id: 'F20', from: ['E02'], to: ['E01'], type: 'S', what: 'Unpaid care', x: 6, st: 'S6' },
+  { id: 'F21', from: ['E16'], to: ['E08'], type: 'A', what: 'Standards, audits, sanctions', x: 4, st: 'S1, S7' },
+  { id: 'F22', from: ['E08'], to: ['E16'], type: 'D', what: 'Incident reports, audit evidence', x: 7, st: 'S7' },
+  { id: 'F23', from: ['E17'], to: ['E08', 'E12'], type: 'A', what: 'Privacy obligations (breach notices go back to the regulator)', x: 5, st: 'All' },
+  { id: 'F24', from: ['E18'], to: ['E08', 'E01'], type: 'S', what: 'Equipment and supplies', x: 6, st: 'S6' }
+];
+const stageOfFlow = f => f.st === 'All' ? [1,2,3,4,5,6,7,8] : f.st.split(', ').map(s => +s.slice(1));
+
+const EPISODE = {
+  us: ['CMS and the state set Medicaid rules and rates; managed-care plans contract agencies.',
+       'The state Medicaid programme or its managed-care plan approves hours under a service plan.',
+       'The agency creates the client and authorisation in its EHR or agency system.',
+       'Authorised hours become visits, matched to the client\'s language and preferences.',
+       'An aide is matched, rostered and routed. Skedulo owns this step.',
+       'The aide checks in and out on a mobile device; times and location are captured.',
+       'Visit data goes to the state EVV aggregator and must match all six required elements. The claim is denied if it does not.',
+       'Payroll pays the aide from timesheets.'],
+  au: ['The NDIA and the Department of Health and Aged Care set prices, budgets and rules; the commissions set standards.',
+       'The NDIA approves a participant plan, or an aged care assessment leads to a Support at Home classification and budget.',
+       'The participant chooses a provider (some must be recorded as a "my provider"). The provider records the agreement and budget, often in Lumary.',
+       'Plan supports become base rosters, within budget and SCHADS Award rules.',
+       'Workers are matched, rostered and routed in Skedulo.',
+       'The worker checks in and out, writes notes, and records incidents and sleepover disturbances.',
+       'Lumary builds a PACE bulk payment request, or a Support at Home claim to Services Australia minus the client contribution, which is invoiced separately.',
+       'Timesheets, leave and sleepovers go to payroll (2cloudnine/Sage, Employment Hero or Easy Employer), which applies the SCHADS Award.'],
+  uk: ['Government sets the means test and the National Living Wage; councils and ICBs set budgets and fee rates.',
+       'The council assesses need and means. People above the capital limit pay for themselves.',
+       'The council awards the package to a contracted agency, which sets up the client and care plan in its care record system.',
+       'Commissioned call times become runs.',
+       'Carers are rostered and routed.',
+       'The carer checks in and out and follows the care plan.',
+       'The agency reconciles against council monitoring and invoices the council for delivered hours.',
+       'Payroll pays carers at or above the National Living Wage.'],
+  ca: ['The province funds home care through Ontario Health atHome.',
+       'An Ontario Health atHome care coordinator assesses the patient and assigns services.',
+       'A contracted service provider organisation receives the referral and sets up the patient.',
+       'Assigned services become visits.',
+       'Nurses and personal support workers are rostered and routed.',
+       'The visit is delivered and recorded.',
+       'The provider reports and bills against its Ontario Health atHome contract.',
+       'Payroll pays staff under provincial law.'],
+  asean: ['Singapore\'s MOH funds means-tested long-term care subsidies; CareShield Life collects premiums.',
+       'A needs assessment and means test set the subsidy. CareShield Life pays monthly cash to people who cannot do 3 of 6 daily activities.',
+       'The client chooses an AIC-listed provider, which sets up the client.',
+       'Subsidised services become a visit plan.',
+       'Staff are rostered and routed.',
+       'The visit is delivered and recorded.',
+       'The provider claims the subsidy and invoices the client for the remainder.',
+       'Payroll pays staff under national labour law.']
+};
+
+/* ---------- Helpers ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent) { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; }
+function table(head, rows, opts = {}) {
+  const th = head.map((h, i) => `<th${opts.idCol === i ? ' class="id"' : ''} scope="col">${esc(h)}</th>`).join('');
+  const tr = rows.map(r => `<tr${r.attrs || ''}>` + r.cells.map((c, i) => `<td${opts.idCol === i ? ' class="id"' : ''}>${c}</td>`).join('') + '</tr>').join('');
+  return `<table><thead><tr>${th}</tr></thead><tbody>${tr}</tbody></table>`;
+}
+
+/* ---------- Route strip ---------- */
+(function routeStrip() {
+  const host = document.getElementById('routeStrip');
+  const svg = el('svg', { viewBox: '0 0 1000 150', 'aria-hidden': 'true' }, host);
+  const x0 = 60, step = 125, y = 60;
+  const X = i => x0 + i * step;
+  el('line', { x1: X(0), y1: y, x2: X(7), y2: y, class: 'rs-line' }, svg);
+  el('line', { x1: X(4), y1: y, x2: X(5), y2: y, class: 'rs-own' }, svg);
+  el('line', { x1: X(5) + 14, y1: y, x2: X(7), y2: y, class: 'rs-feed' }, svg);
+  STAGES.forEach((s, i) => {
+    const c = s.role === 'owns' ? 'own' : s.role === 'feeds' ? 'feed' : '';
+    el('circle', { cx: X(i), cy: y, r: s.role === 'owns' ? 11 : 8, class: 'rs-stop ' + c }, svg);
+    const t1 = el('text', { x: X(i), y: 22, 'text-anchor': 'middle', class: 'rs-sub' }, svg); t1.textContent = s.id;
+    const t2 = el('text', { x: X(i), y: 98, 'text-anchor': 'middle', class: 'rs-label' }, svg); t2.textContent = s.lines[0];
+    const t3 = el('text', { x: X(i), y: 114, 'text-anchor': 'middle', class: 'rs-label' }, svg); t3.textContent = s.lines[1];
+    const role = { none: 'Not involved', receives: 'Receives data', owns: 'Skedulo owns', feeds: 'Skedulo feeds' }[s.role];
+    const t4 = el('text', { x: X(i), y: 136, 'text-anchor': 'middle', class: 'rs-role' + (s.role === 'owns' ? ' own' : '') }, svg); t4.textContent = role;
+  });
+})();
+
+/* ---------- Flow map ---------- */
+const MAP = { left: 156, colW: 128, top: 92, subH: 40, barH: 28, pad: 14 };
+const state = { region: 'au', types: new Set(['M', 'S', 'D', 'A']), sel: { kind: 'entity', id: 'E12' }, step: null };
+const geo = {};
+let edges = [];
+
+function buildMap() {
+  const host = document.getElementById('mapbox');
+  const { left, colW, top, subH, barH, pad } = MAP;
+  let y = top;
+  const layerY = {};
+  LAYERS.forEach(L => { const y0 = y; y += pad; layerY[L.id] = { y0, rows: Array.from({ length: L.sub }, (_, i) => y + i * subH + subH / 2) }; y += L.sub * subH + pad; layerY[L.id].y1 = y; });
+  const H = y + 40, W = left + 8 * colW + 24;
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'group', 'aria-label': 'Flow map of the healthcare value chain' }, host);
+  const defs = el('defs', {}, svg);
+  Object.keys(TYPES).forEach(t => {
+    const m = el('marker', { id: 'mk' + t, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs);
+    el('path', { d: 'M0 0L10 5L0 10z', class: 'mk-' + t }, m);
+  });
+  const colL = s => left + (s - 1) * colW;
+  const colC = s => colL(s) + colW / 2;
+
+  LAYERS.forEach((L, i) => {
+    if (i % 2 === 0) el('rect', { x: 0, y: layerY[L.id].y0, width: W, height: layerY[L.id].y1 - layerY[L.id].y0, class: 'm-layerband' }, svg);
+    const t = el('text', { x: 16, y: layerY[L.id].y0 + 30, class: 'm-layername' }, svg); t.textContent = L.name;
+    const t2 = el('text', { x: 16, y: layerY[L.id].y0 + 47, class: 'm-layerid' }, svg); t2.textContent = L.id;
+  });
+  el('rect', { x: colL(5), y: top - 6, width: colW * 2, height: H - top - 34, class: 'm-zone' }, svg);
+  for (let s = 1; s <= 9; s++) el('line', { x1: colL(s), y1: top - 6, x2: colL(s), y2: H - 40, class: 'm-col' }, svg);
+
+  // stage header with route line
+  const ry = 72;
+  el('line', { x1: colC(1), y1: ry, x2: colC(8), y2: ry, class: 'rs-line' }, svg);
+  el('line', { x1: colC(5), y1: ry, x2: colC(6), y2: ry, class: 'rs-own' }, svg);
+  el('line', { x1: colC(6) + 12, y1: ry, x2: colC(8), y2: ry, class: 'rs-feed' }, svg);
+  geo.stageText = [];
+  STAGES.forEach((s, i) => {
+    const n = i + 1;
+    const g = el('g', { tabindex: 0, role: 'button', 'aria-label': `Stage ${s.id}, ${s.name}` }, svg);
+    const a = el('text', { x: colC(n), y: 18, 'text-anchor': 'middle', class: 'm-stageid' }, g); a.textContent = s.id;
+    const b = el('text', { x: colC(n), y: 36, 'text-anchor': 'middle', class: 'm-stage' }, g); b.textContent = s.lines[0];
+    const c = el('text', { x: colC(n), y: 52, 'text-anchor': 'middle', class: 'm-stage' }, g); c.textContent = s.lines[1];
+    el('circle', { cx: colC(n), cy: ry, r: s.role === 'owns' ? 8 : 6, class: 'rs-stop ' + (s.role === 'owns' ? 'own' : s.role === 'feeds' ? 'feed' : '') }, svg);
+    geo.stageText.push([a, b, c]);
+    const pick = () => { state.step = null; select({ kind: 'stage', id: n }); };
+    g.addEventListener('click', pick);
+    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+  });
+
+  // bar geometry
+  ENT.forEach(en => {
+    const cy = layerY[en.layer].rows[en.row];
+    geo[en.id] = { x1: colL(en.s[0]) + 8, x2: colL(en.s[1]) + colW - 8, cy };
+  });
+
+  // edges
+  const raw = [];
+  FLOWS.forEach(f => f.from.forEach(a => f.to.forEach(b => raw.push({ f, a, b }))));
+  const groups = {};
+  raw.forEach(r => (groups[r.f.x] = groups[r.f.x] || []).push(r));
+  const edgeLayer = el('g', {}, svg);
+  Object.values(groups).forEach(list => {
+    const n = list.length, spacing = Math.min(13, (colW * 0.74) / Math.max(n - 1, 1));
+    list.forEach((r, i) => {
+      const x = colC(r.f.x) + (i - (n - 1) / 2) * spacing;
+      const A = geo[r.a], B = geo[r.b];
+      const xa = Math.min(Math.max(x, A.x1 + 8), A.x2 - 8);
+      const xb = Math.min(Math.max(x, B.x1 + 8), B.x2 - 8);
+      const down = B.cy > A.cy;
+      const ya = A.cy + (down ? 1 : -1) * MAP.barH / 2;
+      const yb = B.cy + (down ? -1 : 1) * (MAP.barH / 2 + 2);
+      const my = (ya + yb) / 2;
+      const d = `M${xa.toFixed(1)},${ya} C${xa.toFixed(1)},${my} ${xb.toFixed(1)},${my} ${xb.toFixed(1)},${yb}`;
+      const p = el('path', { d, class: 'edge ' + r.f.type, 'marker-end': `url(#mk${r.f.type})` }, edgeLayer);
+      const h = el('path', { d, class: 'hit' }, edgeLayer);
+      const tt = el('title', {}, h); tt.textContent = `${r.f.id} ${E[r.a].short} to ${E[r.b].short}: ${r.f.what}`;
+      h.addEventListener('click', () => { state.step = null; select({ kind: 'flow', id: r.f.id }); });
+      edges.push({ ...r, p, h });
+    });
+  });
+
+  // bars on top
+  ENT.forEach(en => {
+    const G = geo[en.id];
+    const g = el('g', { class: 'm-bar' + (en.id === 'E12' ? ' sked' : ''), tabindex: 0, role: 'button', 'aria-label': `${en.id} ${en.name}` }, svg);
+    el('rect', { x: G.x1, y: G.cy - MAP.barH / 2, width: G.x2 - G.x1, height: MAP.barH, rx: 7 }, g);
+    const t = el('text', { x: G.x1 + 10, y: G.cy + 4.5 }, g);
+    const s1 = el('tspan', { class: 'eid' }, t); s1.textContent = en.id + ' ';
+    const s2 = el('tspan', {}, t); s2.textContent = en.short;
+    const pick = () => { state.step = null; select({ kind: 'entity', id: en.id }); };
+    g.addEventListener('click', pick);
+    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+    G.g = g;
+  });
+
+  // legend
+  const ly = H - 16;
+  let lx = 16;
+  [['M', 'Money'], ['S', 'Service'], ['D', 'Data'], ['A', 'Authority or decision']].forEach(([t, l]) => {
+    el('line', { x1: lx, y1: ly - 4, x2: lx + 24, y2: ly - 4, class: 'edge ' + t }, svg);
+    const tx = el('text', { x: lx + 30, y: ly, class: 'm-legend' }, svg); tx.textContent = l;
+    lx += 40 + l.length * 6.6;
+  });
+  el('rect', { x: lx + 8, y: ly - 13, width: 24, height: 14, rx: 4, class: 'm-zone', stroke: 'none' }, svg);
+  const zt = el('text', { x: lx + 38, y: ly, class: 'm-legend' }, svg); zt.textContent = 'Stages Skedulo owns';
+}
+
+function select(sel) { state.sel = sel; render(); }
+
+function connected(entityId) { return edges.filter(e => e.a === entityId || e.b === entityId); }
+
+function render() {
+  const { sel, step, types } = state;
+  const stageN = step || (sel && sel.kind === 'stage' ? sel.id : null);
+  const active = new Set();
+  const activeEnt = new Set();
+  edges.forEach(e => {
+    let on = true;
+    if (stageN) on = stageOfFlow(e.f).includes(stageN);
+    else if (sel && sel.kind === 'entity') on = e.a === sel.id || e.b === sel.id;
+    else if (sel && sel.kind === 'flow') on = e.f.id === sel.id;
+    const visible = types.has(e.f.type);
+    e.p.classList.toggle('off', !visible); e.h.classList.toggle('off', !visible);
+    e.p.classList.toggle('dim', !on);
+    e.p.classList.toggle('hot', on && !!sel);
+    if (on && visible) { active.add(e); activeEnt.add(e.a); activeEnt.add(e.b); }
+  });
+  const filtering = !!(stageN || sel);
+  ENT.forEach(en => {
+    const g = geo[en.id].g;
+    let lit = !filtering || activeEnt.has(en.id);
+    if (stageN && en.s[0] <= stageN && en.s[1] >= stageN && !filtering) lit = true;
+    if (sel && sel.kind === 'entity' && sel.id === en.id) lit = true;
+    g.classList.toggle('dim', !lit);
+    g.classList.toggle('sel', !!(sel && sel.kind === 'entity' && sel.id === en.id));
+  });
+  geo.stageText.forEach((arr, i) => arr.forEach(t => t.classList.toggle('sel', stageN === i + 1)));
+  renderPanel(stageN);
+  document.getElementById('walkPrev').disabled = !step || step <= 1;
+  document.getElementById('walkNext').disabled = !step || step >= 8;
+  document.getElementById('walkNote').textContent = step ? `Stage ${step} of 8 · ${REGIONS[state.region]}` : '';
+}
+
+function flowListHTML(list) {
+  if (!list.length) return '<p class="small muted">No flows of the selected types.</p>';
+  return '<ul>' + list.map(e => `<li class="flowitem" data-flow="${e.f.id}"><span class="sw ${e.f.type}"></span> <b>${e.f.id}</b> ${esc(E[e.a].short)} to ${esc(E[e.b].short)}: ${esc(e.f.what)}</li>`).join('') + '</ul>';
+}
+function visibleEdges(pred) { return edges.filter(e => state.types.has(e.f.type) && pred(e)); }
+
+function renderPanel(stageN) {
+  const P = document.getElementById('panel');
+  const { sel, region } = state;
+  let html = '';
+  if (stageN) {
+    const s = STAGES[stageN - 1];
+    const ents = ENT.filter(en => en.s[0] <= stageN && en.s[1] >= stageN).map(en => en.short).join(', ');
+    html = `<div class="head"><div class="kicker">Stage ${s.id}${state.step ? ' · walking through one client' : ''}</div>
+      <h3>${esc(s.name)}</h3>
+      <div><span class="rolepill ${s.role}">${ROLE[s.role]}</span></div>
+      <p class="small">${esc(s.what)}</p></div>
+      <dl><dt>In ${esc(REGIONS[region])}</dt><dd>${esc(EPISODE[region][stageN - 1])}</dd>
+      <dt>Entities active here</dt><dd>${esc(ents)}</dd></dl>
+      <div><b class="small">Flows in this stage</b>${flowListHTML(visibleEdges(e => stageOfFlow(e.f).includes(stageN)))}</div>`;
+  } else if (sel && sel.kind === 'entity') {
+    const en = E[sel.id];
+    const L = LAYERS.find(l => l.id === en.layer);
+    const ex = (en.reg && en.reg[region]) || en.ex;
+    const stg = en.s[0] === en.s[1] ? STAGES[en.s[0] - 1].id : `${STAGES[en.s[0] - 1].id} to ${STAGES[en.s[1] - 1].id}`;
+    html = `<div class="head"><div class="kicker">${en.id} · ${esc(L.name)} layer · ${stg}</div>
+      <h3>${esc(en.name)}</h3></div>
+      <dl><dt>Holds</dt><dd>${esc(en.holds)}</dd>
+      <dt>${en.reg ? 'In ' + esc(REGIONS[region]) : 'Examples'}</dt><dd>${esc(ex)}</dd></dl>
+      <div><b class="small">Sends</b>${flowListHTML(visibleEdges(e => e.a === en.id))}</div>
+      <div><b class="small">Receives</b>${flowListHTML(visibleEdges(e => e.b === en.id))}</div>`;
+  } else if (sel && sel.kind === 'flow') {
+    const f = FLOWS.find(x => x.id === sel.id);
+    html = `<div class="head"><div class="kicker">${f.id} · ${TYPES[f.type]} flow · ${esc(f.st)}</div>
+      <h3>${esc(f.what)}</h3></div>
+      <dl><dt>From</dt><dd>${f.from.map(id => esc(E[id].name)).join(', ')}</dd>
+      <dt>To</dt><dd>${f.to.map(id => esc(E[id].name)).join(', ')}</dd>
+      <dt>Skedulo involved</dt><dd>${f.from.includes('E12') || f.to.includes('E12') ? 'Yes. This flow starts or ends in Skedulo.' : 'No, but it may depend on data Skedulo recorded earlier.'}</dd></dl>
+      <p class="small muted">Select an entity to see all its flows.</p>`;
+  } else {
+    html = `<div class="head"><h3>Everything at once</h3><p class="small">All ${FLOWS.length} flows between ${ENT.length} entities. Select a bar, an arrow or a stage name to focus.</p></div>`;
+  }
+  P.innerHTML = html;
+  P.querySelectorAll('[data-flow]').forEach(li => li.addEventListener('click', () => { state.step = null; select({ kind: 'flow', id: li.dataset.flow }); }));
+}
+
+function setRegion(r) {
+  state.region = r;
+  document.querySelectorAll('[data-region]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.region === r)));
+  render();
+}
+
+/* ---------- Tables: entities & flows ---------- */
+function renderModelTables() {
+  const q = document.getElementById('entSearch').value.trim().toLowerCase();
+  const t = document.getElementById('entType').value;
+  const match = s => !q || s.toLowerCase().includes(q);
+  document.getElementById('tblStages').innerHTML = table(['ID', 'Name', 'What happens', 'Skedulo role'],
+    LAYERS.map(L => ({ cells: [L.id, `<strong>${esc(L.name)}</strong> (layer)`, esc(L.what), ''] })).concat(
+    STAGES.map(s => ({ cells: [s.id, `<strong>${esc(s.name)}</strong>`, esc(s.what), `<span class="rolepill ${s.role}">${ROLE[s.role]}</span>`] }))), { idCol: 0 });
+  const entRows = ENT.slice().sort((a, b) => a.id.localeCompare(b.id)).filter(en => match([en.id, en.name, en.holds, en.ex, ...(en.reg ? Object.values(en.reg) : [])].join(' ')));
+  document.getElementById('tblEnt').innerHTML = entRows.length ? table(['ID', 'Entity', 'Layer', 'Stages', 'Holds', 'Examples by region'],
+    entRows.map(en => ({ cells: [en.id, `<strong>${esc(en.name)}</strong>`, en.layer, `S${en.s[0]}${en.s[1] !== en.s[0] ? '–S' + en.s[1] : ''}`, esc(en.holds),
+      en.reg ? Object.entries(en.reg).map(([k, v]) => `<b>${esc(REGIONS[k].split(' (')[0])}:</b> ${esc(v)}`).join('<br>') : esc(en.ex)] })), { idCol: 0 })
+    : '<p class="small" style="padding:12px">No entities match. Clear the search to see all 18.</p>';
+  const flowRows = FLOWS.filter(f => (!t || f.type === t) && match([f.id, f.what, ...f.from.map(x => E[x].name), ...f.to.map(x => E[x].name)].join(' ')));
+  document.getElementById('tblFlows').innerHTML = flowRows.length ? table(['ID', 'From', 'To', 'Type', 'What flows', 'Stage'],
+    flowRows.map(f => ({ cells: [f.id, f.from.map(x => esc(E[x].short)).join(', '), f.to.map(x => esc(E[x].short)).join(', '), `<span class="sw ${f.type}"></span> ${TYPES[f.type]}`, esc(f.what), esc(f.st)] })), { idCol: 0 })
+    : '<p class="small" style="padding:12px">No flows match. Clear the search or pick All types.</p>';
+}
+
+/* ---------- Demand ---------- */
+function renderDemand() {
+  document.getElementById('tblSeg').innerHTML = table(['ID', 'Segment', 'Why they need care', 'Typical services', 'Main payer: US · Australia · UK'], [
+    ['D1', 'Older people with frailty or chronic illness (largest group)', 'Help with daily living so they can stay at home', 'Personal care, domestic help, nursing, allied health', 'Medicaid if low income, otherwise private pay or long-term care insurance · Support at Home or CHSP plus a contribution · council after a means test, otherwise self-funded'],
+    ['D2', 'People with disability, all ages', 'Lifelong support for daily living, community participation and work', 'Support workers, supported independent living, therapy', 'Medicaid home and community-based waivers · NDIS, not means-tested · council and NHS continuing healthcare'],
+    ['D3', 'Patients just out of hospital', 'Recover safely and avoid going back in', 'Short episodes of skilled nursing and therapy', 'Medicare home health or Medicare Advantage · restorative care within Support at Home · NHS reablement'],
+    ['D4', 'Children with complex or behavioural needs', 'Nursing at home, early intervention, autism therapy', 'Pediatric nursing, ABA and allied therapy', 'Medicaid and commercial insurance · NDIS early childhood · NHS and council'],
+    ['D5', 'People needing tests at home', 'Lab draws or imaging without travelling', 'Mobile phlebotomy and diagnostics', 'Health insurance in each market'],
+    ['D6', 'Family carers', 'Arrange care, fill gaps, often co-pay', 'Respite, coordination', "Usually the client's programme"]
+  ].map(r => ({ cells: [r[0], `<strong>${esc(r[1])}</strong>`, esc(r[2]), esc(r[3]), esc(r[4])] })), { idCol: 0 });
+  document.getElementById('tblPay').innerHTML = table(['Region', 'Public money and its rules', 'What the client pays', 'Other sources'], [
+    ['United States', 'Medicaid pays for more than two-thirds of long-term care at home and in the community, and over 5 million people receive Medicaid home care a year. It is means-tested, and states can cap places. Medicare pays for short skilled episodes, not ongoing personal care.', 'People above Medicaid limits pay privately, about $35 an hour at the 2025 median', 'Long-term care insurance, Veterans Affairs benefits, Medicare Advantage extras'],
+    ['Australia', 'NDIS: a funded plan per participant, not means-tested; average annualised payment $67,500 in the year to June 2026. Support at Home: Services Australia holds each client\'s budget.', 'NDIS: nothing. Support at Home: a contribution by service type; a full pensioner pays 0% for clinical care, 5% for independence and 17.5% for everyday living', 'Private top-up; CHSP supports more than 840,000 older people with lower-level help'],
+    ['England', 'Council funding after a needs and means test. Above £23,250 of capital the person pays in full; below £14,250 capital is ignored. Limits frozen since 2010, unchanged for 2026–27.', 'Self-funders pay the full price; others contribute from income', 'Private pay; Scotland and Wales use more generous rules'],
+    ['Canada (Ontario)', 'Provincial funding through Ontario Health atHome, which contracts providers', 'Little or nothing for assessed public hours', 'Private top-up; family-managed home care contracts'],
+    ['ASEAN', 'Singapore: means-tested subsidies of up to 80% for home and community care, CareShield Life cash and the Home Caregiving Grant. Thailand: community long-term care under the Universal Coverage Scheme. Elsewhere little public funding.', 'Singapore: the share left after subsidy. Elsewhere: most of the cost', 'Family care and private pay dominate in Malaysia, Vietnam, Indonesia and the Philippines']
+  ].map(r => ({ cells: [`<strong>${esc(r[0])}</strong>`, esc(r[1]), esc(r[2]), esc(r[3])] })));
+  // loop diagram
+  const host = document.getElementById('loopbox');
+  const svg = el('svg', { viewBox: '0 0 680 300', role: 'img', 'aria-label': 'Demand loop: need rises, entitlements and funded hours rise, budgets and workers cap delivery, waiting lists grow, providers must deliver more per worker hour' }, host);
+  const defs = el('defs', {}, svg);
+  const mk = el('marker', { id: 'lpmk', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs);
+  el('path', { d: 'M0 0L10 5L0 10z', class: 'lp-mk' }, mk);
+  const box = (x, y, w, lines, cls) => {
+    el('rect', { x, y, width: w, height: 22 + lines.length * 17, rx: 9, class: 'lp-box ' + (cls || '') }, svg);
+    lines.forEach((l, i) => { const t = el('text', { x: x + w / 2, y: y + 22 + i * 17, 'text-anchor': 'middle', class: 'lp-t' + (i === 0 ? ' b' : '') + (cls === 'sked' ? ' on' : '') }, svg); t.textContent = l; });
+  };
+  box(20, 20, 190, ['Need rises', 'ageing, home preference']);
+  box(245, 20, 190, ['Entitlements grow', 'plans, budgets, hours']);
+  box(470, 20, 190, ['Funded hours rise', 'more visits to deliver']);
+  box(470, 150, 190, ['Delivery is capped', 'budget targets, few workers'], 'brake');
+  box(245, 150, 190, ['Waiting lists grow', 'interim funding, rationing'], 'brake');
+  box(20, 150, 190, ['More care per hour', 'less travel, fewer gaps'], 'sked');
+  const arrow = d => el('path', { d, class: 'lp-arrow', 'marker-end': 'url(#lpmk)' }, svg);
+  arrow('M210 40 H243'); arrow('M435 40 H468'); arrow('M565 76 V148'); arrow('M470 172 H437'); arrow('M245 172 H212'); arrow('M115 150 V78');
+  const n = el('text', { x: 340, y: 262, 'text-anchor': 'middle', class: 'lp-t' }, svg); n.textContent = 'Skedulo sells the last box: serving more of the queue with the same budget and staff.';
+}
+
+/* ---------- Regions ---------- */
+const REGION_DETAIL = {
+  us: { title: 'United States', rows: [
+    ['Funding', 'Many payers. Medicare pays agencies per 30-day period under PDGM; CMS cut aggregate Medicare home health payments about 1.3% ($220M) for 2026, and the 2027 final rule estimates a 2.4% increase. Medicaid funds most personal care through state programmes and managed-care plans.'],
+    ['Proof of delivery', 'The 21st Century Cures Act requires EVV for Medicaid personal care and home health, with six data elements: service type, person served, date, location, worker, and start and end times. In 2026 states moved to claim denials: Rhode Island from 7 July, a Missouri Medicaid plan from 21 September.'],
+    ['Pay rules', 'Federal and state wage-and-hour law; no single sector award.'],
+    ['Privacy', 'HIPAA, with Business Associate Agreements between provider and vendor.'],
+    ['What changes for Skedulo', 'Visit actuals must be EVV-grade, and the EVV system of record must send them to the state aggregator before the claim goes out. Clinical systems are often Epic or a home-health EHR, so Skedulo runs standalone or on Health Cloud and integrates by API.']] },
+  au: { title: 'Australia', rows: [
+    ['Funding', 'NDIA funds disability through participant plans; on PACE, claims go in as bulk payment requests, and some provider types can only claim if recorded as a "my provider". Support at Home replaced Home Care Packages and Short-Term Restorative Care on 1 November 2025: Services Australia holds funding, eight classifications, contributions by service type. Providers choose how often to claim from December 2025. CHSP moves across no earlier than 1 July 2027.'],
+    ['Proof of delivery', 'Service records and invoices that match the plan or budget, plus quality evidence for the commissions. No EVV-style aggregator.'],
+    ['Pay rules', 'SCHADS Award: rosters published two weeks ahead, seven days\' notice for changes, broken shifts within a 12-hour span, minimum engagement of 2 hours for most categories. Sleepovers, broken shifts and travel all affect pay.'],
+    ['Privacy', 'Privacy Act 1988 and the APPs, plus health-records laws in NSW, VIC and ACT. Automated decision-making transparency duties start on 10 December 2026.'],
+    ['What changes for Skedulo', 'The deepest vertical build: the AU Healthcare package on Salesforce, on top of Lumary (participants, agreements, claims) and payroll packages (2cloudnine/Sage, Employment Hero, Easy Employer). Package version prerequisites are strict.']] },
+  uk: { title: 'United Kingdom', rows: [
+    ['Funding', 'Councils and the NHS buy 70–80% of care (Birdie, citing LaingBuisson). Average council fee £24.10 an hour against the Homecare Association\'s minimum price of £34.42; the National Living Wage rose to £12.71 in April 2026. Councils and ICBs pool money through the Better Care Fund.'],
+    ['Means test (England)', 'Above £23,250 of capital, people pay in full; below £14,250, capital is ignored. Frozen since 2010.'],
+    ['Proof of delivery', 'Set by each council contract, typically electronic visit monitoring and invoicing against commissioned hours.'],
+    ['Digital standards', 'NHS England\'s assured supplier list for digital social care records is the route to ICB digitisation funding; some platforms connect to GP Connect.'],
+    ['Regulation and privacy', 'CQC registration and inspection; UK GDPR.'],
+    ['What changes for Skedulo', 'Thin margins make optimisation valuable, but incumbents bundle rostering with care records. A scheduling-only vendor must integrate with an NHS-assured record system.']] },
+  ca: { title: 'Canada and New Zealand', rows: [
+    ['Canada (Ontario)', 'Ontario Health atHome coordinates home care and contracts with more than 150 service provider organisations through about 400 contracts. Providers must prequalify to bid. The scheduling buyer is the provider organisation, and its contract defines reporting.'],
+    ['New Zealand', 'The Health Information Privacy Code 2020 and the HISO 10029 security standard apply to vendors. A May 2026 inquiry found a health software vendor in breach alongside Health NZ.']] },
+  asean: { title: 'ASEAN', rows: [
+    ['The region', 'Not one market. By 2050 every ASEAN member state will be ageing, aged or super-aged, with 128.7 million older people (16.3% of the population).'],
+    ['Singapore', 'Means-tested subsidies of up to 80% for home and community care through AIC-listed providers. CareShield Life pays monthly cash to people who cannot do 3 of 6 daily activities. The Home Caregiving Grant rose to up to $600 a month from April 2026. Maturity for Skedulo: high.'],
+    ['Malaysia', 'Mostly private and out of pocket, with no nationwide long-term care financing. Tiered financing is under discussion, starting with civil servants in 2027 and a national framework targeted for 2030. Act 802 (aged care) is still not in force. Maturity: medium and rising.'],
+    ['Thailand', 'Community-based long-term care for dependent older people under the Universal Coverage Scheme since 2016. The NHSO raised the budget from 6,000 to 10,442 baht per person per year. Maturity for enterprise software: low; care is public and community-run.'],
+    ['Vietnam', 'Families and private pay. The Population Law took effect on 1 July 2026; about 42% of older people received a pension or social allowance in 2025 against a 55% target. The Ministry of Health is drafting a community care model. Maturity: low today.'],
+    ['Indonesia and Philippines', 'Mostly family care, largely by women. Indonesia has a long-term care roadmap for its employment social security members; PhilHealth covers hospital care but not long-term care at home.'],
+    ['What changes for Skedulo', 'Singapore looks most like Australia. Elsewhere the buyer is a private agency or a hospital home-care service paid out of pocket, so claims integration matters less and price and mobile ease of use matter more. Check data residency against each country\'s data protection law.']] }
+};
+function renderRegion(r) {
+  document.querySelectorAll('[data-rgn]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.rgn === r)));
+  const d = REGION_DETAIL[r];
+  document.getElementById('regionBody').innerHTML = `<h3>${esc(d.title)}</h3><ul class="region-lines">` + d.rows.map(([k, v]) => `<li><b>${esc(k)}</b><span>${esc(v)}</span></li>`).join('') + '</ul>';
+}
+function renderOverlay() {
+  const dims = [
+    ['Main public funder', 'Medicaid (states); Medicare for skilled episodes', 'NDIA (disability); Services Australia (aged care)', 'Councils, NHS ICBs', 'Ontario Health atHome', 'Singapore MOH and AIC; Thailand NHSO; others mostly family and private'],
+    ['Private payers', 'Long-term care insurance, private pay, Medicare Advantage', 'Private top-up', 'Self-funders above the means test', 'Private top-up', 'Out of pocket; CareShield Life cash (Singapore)'],
+    ['Entitlement form', 'Authorised hours', 'Plan budget or classification', 'Commissioned hours or personal budget', 'Assigned services', 'Subsidy percentage (Singapore)'],
+    ['Proof of delivery', 'EVV, six elements, state aggregator', 'Service records against plan or budget', 'Council visit monitoring', 'Contract reporting', 'Subsidy reporting (Singapore); invoices elsewhere'],
+    ['Claim channel', 'Medicaid, plan or Medicare claims', 'PACE bulk payment requests; Services Australia portal or API', 'Council invoices', 'Provider contract billing', 'Subsidy claims (Singapore); private invoices'],
+    ['Pay rules', 'Wage-and-hour law', 'SCHADS Award', 'National Living Wage', 'Provincial law', 'National labour law'],
+    ['Privacy', 'HIPAA', 'Privacy Act, state health-records laws', 'UK GDPR', 'Provincial health privacy law', 'National data protection laws'],
+    ['Quality regulator', 'CMS, state health departments', 'NDIS Commission, Aged Care Quality and Safety Commission', 'CQC', 'Provincial ministry', 'Ministries of health and welfare'],
+    ['Common platforms', 'HCHB, WellSky, Axxess, AlayaCare, Epic', 'Lumary, Visualcare, SupportAbility, ShiftCare', 'Access, Birdie, Nourish', 'AlayaCare, Procura', 'Local and regional tools'],
+    ['Demand pressure', 'Waiting lists in 41 states; federal Medicaid cuts', 'NDIS growth above target; Support at Home waiting list', 'Frozen means test; fees below cost', 'Contract-capped capacity', 'Fast ageing; funding still being built'],
+    ['Skedulo position', 'Standalone or Health Cloud; Epic integration', 'Deepest product: AU Healthcare with Lumary and payroll', 'Must integrate with an NHS-assured record', 'Not researched', 'Singapore most promising']
+  ];
+  document.getElementById('tblOverlay').innerHTML = table(['Dimension', 'United States', 'Australia', 'UK (England)', 'Canada (Ontario)', 'ASEAN'], dims.map(r => ({ cells: [`<strong>${esc(r[0])}</strong>`, ...r.slice(1).map(esc)] })));
+}
+
+/* ---------- Players ---------- */
+function renderPlayers() {
+  const rows = [
+    ['Funders', 'CMS, state Medicaid and managed-care plans, Medicare Advantage, commercial insurers, private pay', 'NDIA, Services Australia (Support at Home, CHSP), DVA, private pay', 'Councils, NHS ICBs, self-funders', 'Provincial ministries; Ontario Health atHome'],
+    ['Assess and coordinate', 'Ordering physician, agency OASIS assessment, care managers', 'Aged care assessors, NDIA planners, local area and support coordinators', 'Council social workers, NHS discharge teams', 'Ontario Health atHome care coordinators'],
+    ['Regulate', 'CMS, state health departments, OIG, HHS (HIPAA)', 'NDIS Commission, Aged Care Quality and Safety Commission, OAIC, Fair Work', 'CQC, ICO, NHS England', 'Provincial ministries and privacy commissioners'],
+    ['Care platform or EHR (integrates)', 'Homecare Homebase, WellSky, Axxess, AlayaCare, Netsmart, MatrixCare, Epic', 'Lumary, Visualcare, SupportAbility, ShiftCare, CareMaster, AlayaCare', 'Access, Birdie, Nourish, everyLIFE PASS, CareLineLive', 'AlayaCare, Procura'],
+    ['Scheduling (competes)', 'EHR modules, HHAeXchange, AxisCare, Salesforce Field Service, Skedulo', 'Skedulo, Lumary, ShiftCare, Easy Employer, Deputy, RotaWiz, Imploy, GoodHuman', 'Access PeoplePlanner, CarePlanner, Birdie, Malinko', 'Modules in AlayaCare and Procura'],
+    ['Payroll and pay rules (integrates)', 'ADP, Workday, UKG, Viventium', '2cloudnine (Sage), Employment Hero/KeyPay, Easy Employer', 'Payroll modules in Access and similar suites', 'Provincial payroll vendors'],
+    ['Verify and claim', 'State EVV aggregators (Sandata, now part of HHAeXchange; HHAeXchange; state systems), clearinghouses', 'my NDIS provider portal (PACE); Aged Care Provider Portal or API', 'Council invoicing and monitoring', 'Ontario Health atHome contract billing']
+  ];
+  document.getElementById('tblPlayers').innerHTML = table(['Block', 'United States', 'Australia', 'UK', 'Canada'], rows.map(r => ({ cells: [`<strong>${esc(r[0])}</strong>`, ...r.slice(1).map(esc)] })));
+  const whole = [
+    ['UnitedHealth/Optum (LHC Group 2023, Amedisys 2025); Humana (CenterWell Home Health)', 'Insurer that owns providers, US only', 'S1–S8 by ownership, not one system'],
+    ['AlayaCare', 'All-in-one provider software (US, Canada, Australia)', 'S3–S8; reviewers rate billing and payroll its weaker parts'],
+    ['Lumary', 'All-in-one provider software, Australia', 'S3–S7; Skedulo partner'],
+    ['ShiftCare, Visualcare, Imploy', 'All-in-one tools for small and mid-sized Australian providers', 'Rostering, billing, claiming'],
+    ['The Access Group', 'Provider and council software, UK', 'S3–S8 plus commissioning tools'],
+    ['HHAeXchange', 'Network between payer and provider, US', 'Agency software plus state visit-verification aggregation'],
+    ['Epic', 'Clinical record moving into operations (EpicOps)', 'S3–S5'],
+    ['Skedulo', 'Specialist', 'Owns S5–S6, feeds S7–S8; with Lumary and payroll covers intake to pay in Australia']
+  ];
+  document.getElementById('tblWhole').innerHTML = table(['Player', 'Type', 'Stages covered'], whole.map(r => ({ cells: [`<strong>${esc(r[0])}</strong>`, esc(r[1]), esc(r[2])], attrs: r[0] === 'Skedulo' ? ' style="background:var(--route-tint)"' : '' })));
+}
+
+/* ---------- Playbook ---------- */
+const CHECKS = {
+  common: {
+    in: [['Confirm the client, address and service agreement exist in the care platform and reached Skedulo.', 'All regions'], ['Check the funding or authorisation limits that came across with the client.', 'All regions'], ['Check the worker record: resource, region, skills and availability as sent from payroll or HR.', 'All regions']],
+    inside: [['Check the job\'s allocation, status and actual times on the mobile record.', 'All regions'], ['Look for a missing check-out or manually edited times.', 'All regions']],
+    out: [['Ask whether the customer has already claimed or run pay before correcting actual times.', 'All regions'], ['Compare what the care platform funded, what Skedulo delivered and what payroll paid.', 'All regions']]
+  },
+  au: {
+    in: [['Check Lumary package version against the AU Healthcare release-note prerequisites.', 'Australia'], ['Look for a customer field with the same API name as a package field (a "no such column" error in a script).', 'Australia']],
+    inside: [['Check sleepover disturbance, travel and transport forms were completed.', 'Australia']],
+    out: [['Check Skedulo core, AU Healthcare, Lumary and the payroll package versions against release-note prerequisites.', 'Australia, payroll'], ['Check whether flows, Apex or reports in other packages block an upgrade or uninstall.', 'Australia'], ['If delivered services were wrong, check the PACE bulk payment request or Support at Home claim Lumary built from them.', 'Australia, claims']]
+  },
+  us: {
+    in: [['Confirm which system owns appointments (EHR or Skedulo) so updates do not overwrite each other.', 'United States']],
+    inside: [['Check the visit has all six EVV elements: service type, person, date, location, worker, start and end times.', 'United States']],
+    out: [['Confirm the customer\'s EVV system of record and which state aggregator it reports to.', 'United States'], ['Check edited visits carry the reason code the state requires before they reach the aggregator.', 'United States']]
+  },
+  uk: {
+    in: [['Confirm the care record system is the source of the client and care plan.', 'UK']],
+    inside: [['Ask for the council contract\'s call-monitoring rules when actual times are involved.', 'UK']],
+    out: [['Check invoiced hours against commissioned hours in the council contract.', 'UK']]
+  },
+  ca: { in: [], inside: [], out: [['Check the provider\'s contract reporting requirements before correcting visit data.', 'Canada'], ['For New Zealand customers, follow the HIPC 2020 and HISO 10029 obligations in the contract.', 'New Zealand']] },
+  asean: { in: [], inside: [], out: [['For Singapore, check the subsidy reporting the provider owes before correcting visit data.', 'ASEAN'], ['Confirm data residency terms against the country\'s data protection law.', 'ASEAN']] }
+};
+const PRIVACY = { au: 'Treat every client record as sensitive health information; never paste it into public AI tools.', us: 'Handle client data under the customer\'s BAA; keep clinical detail out of tickets.', uk: 'Keep personal data minimal in tickets and logs (UK GDPR).', ca: 'Keep personal data minimal in tickets and logs.', asean: 'Keep personal data minimal in tickets and logs.' };
+let currentChecks = [];
+function renderChecks() {
+  const r = document.getElementById('tRegion').value, w = document.getElementById('tWhere').value;
+  const parts = w === 'unsure' ? ['in', 'inside', 'out'] : [w];
+  currentChecks = [];
+  parts.forEach(p => { currentChecks.push(...CHECKS.common[p], ...(CHECKS[r][p] || [])); });
+  currentChecks.push([PRIVACY[r], 'Privacy']);
+  document.getElementById('checkTitle').textContent = `${currentChecks.length} checks for ${REGIONS[r].split(' (')[0]}`;
+  document.getElementById('checkList').innerHTML = currentChecks.map((c, i) => `<li><input type="checkbox" id="chk${i}"><label for="chk${i}">${esc(c[0])}<span class="tag">${esc(c[1])}</span></label></li>`).join('');
+  document.getElementById('copyStatus').textContent = '';
+}
+document.getElementById('copyChecks').addEventListener('click', async () => {
+  const text = currentChecks.map(c => '[ ] ' + c[0]).join('\n');
+  try { await navigator.clipboard.writeText(text); document.getElementById('copyStatus').textContent = 'Checklist copied. Paste it into the ticket.'; }
+  catch (e) { document.getElementById('copyStatus').textContent = 'Copy was blocked by the browser. Select the checklist text and copy it manually.'; }
+});
+
+/* ---------- Sources ---------- */
+const SRC_EXT = [
+  ['Skedulo healthcare use cases', 'https://www.skedulo.com/industries/healthcare/use-cases/'],
+  ['Skedulo NDIS and aged care', 'https://www.skedulo.com/industries/ndis-and-aged-care-scheduling/'],
+  ['Solace Pediatric Home Healthcare case study', 'https://www.skedulo.com/customers/solace-pediatric-home-healthcare/'],
+  ['AU Healthcare docs', 'https://auhealthcare.docs.skedulo.com/'],
+  ['Employment Hero integration v3.2 release notes', 'https://www.skedulo.com/release-notes/skedulo-healthcare-employment-hero-v3-2/'],
+  ['CMS CY2026 home health final rule', 'https://cms.gov/newsroom/fact-sheets/calendar-year-cy-2026-home-health-prospective-payment-system-final-rule-cms-1828-f'],
+  ['Home Health Care News: CY2027 rule', 'https://homehealthcarenews.com/2026/11/cms-finalizes-2027-home-health-medicare-payment-rule-with-2-4-rate-increase/'],
+  ['HHAeXchange: Rhode Island EVV guide', 'https://www.hhaexchange.com/wp-content/uploads/2026/06/RI_EVV_Provider_Guide.pdf'],
+  ['Home State Health EVV notice', 'https://www.homestatehealth.com/content/dam/centene/home-state-health/pdfs-2026/june2026/20260721_EVV%20Notice_Effective%20092126_R.pdf'],
+  ['KFF: Medicaid home care waiting lists', 'https://www.kff.org/medicaid/a-look-at-waiting-lists-for-medicaid-home-and-community-based-services-from-2016-to-2025/'],
+  ['KFF: Medicaid home care in 2025', 'https://www.kff.org/medicaid/medicaid-home-care-hcbs-in-2025'],
+  ['CareScout cost of care 2025', 'https://www.carescout.com/cost-of-care.html'],
+  ['AARP Home and Community Preferences 2024', 'https://www.aarp.org/home-living/home-community-preferences-survey-2024/'],
+  ['KLAS home health', 'https://klasresearch.com/vendor/delta/62541'],
+  ['Fierce Healthcare on EpicOps', 'https://www.fiercehealthcare.com/health-tech/look-epics-long-term-play-build-tech-operations-starting-scheduling'],
+  ['Healthcare Dive: UnitedHealth closes Amedisys', 'https://www.healthcaredive.com/news/unitedhealth-closes-amedisys-buy-doj/757742/'],
+  ['AlayaCare FAQ', 'https://alayacare.com/faq/'],
+  ['NDS: new to PACE', 'https://www.nds.org.au/resources/all-resources/new-to-pace-what-to-watch-for'],
+  ['NDIA data: participants June 2026', 'https://dataresearch.ndis.gov.au/media/4541/download'],
+  ['health.gov.au: Support at Home contributions', 'https://www.health.gov.au/sites/default/files/2025-12/support-at-home-program-participant-contributions.pdf'],
+  ['health.gov.au: claim and payment process', 'https://www.health.gov.au/node/53339'],
+  ['The Weekly Source: Support at Home waiting list', 'https://www.theweeklysource.com.au/numbers-waiting-for-support-at-home-surge-13-per-cent/'],
+  ['GOV.UK: social care charging 2026–27', 'https://www.gov.uk/government/publications/social-care-charging-for-local-authorities-2026-to-2027/social-care-charging-for-care-and-support-2026-to-2027-local-authority-circular'],
+  ['Birdie: UK home care pricing', 'https://www.birdie.care/blog/the-2026-home-care-growth-blueprint-transitioning-to-a-sustainable-private-pay-model'],
+  ['Birdie: NHS assured suppliers', 'https://www.birdie.care/blog/assured-suppliers-nhs'],
+  ['Ontario Health atHome', 'https://ontariohealthathome.ca/?p=45'],
+  ['The ASEAN Magazine: ageing populations', 'https://theaseanmagazine.asean.org/?p=6982'],
+  ['CareShield Life: long-term care financing', 'https://careshieldlife.gov.sg/long-term-care/other-long-term-care-financing-support.html'],
+  ['MOH Singapore: Home Caregiving Grant enhancement', 'https://www.moh.gov.sg/newsroom/government-accepts-careshield-life-council-s-recommendations-to-enhance-careshield-life--provides-additional--570-million-to-subsidise-premiums/'],
+  ['The Vibes: Malaysia elderly care financing', 'https://www.thevibes.com/articles/opinion/127236/care-forthe-elderlycan-consume-most-of-a-malaysian-familys-income-as-public-support-falls-short'],
+  ['Pattaya Mail: Thailand long-term care budget', 'https://www.pattayamail.com/thailandnews/thailand-expands-care-for-dependent-persons-and-increases-budget-for-health-464775'],
+  ['Nation Thailand: Vietnam ageing', 'https://www.nationthailand.com/news/world/40071719'],
+  ['ILO: long-term care in Indonesia', 'https://ilo.org/resource/news/building-long-term-care-older-persons-indonesia']
+];
+function renderSources() {
+  const li = ([t, u]) => u ? `<li><a href="${esc(u)}">${esc(t)}</a></li>` : `<li>${esc(t)}</li>`;
+  document.getElementById('srcExt').innerHTML = SRC_EXT.map(li).join('');
+}
+
+/* ---------- Glossary ---------- */
+const GLOSSARY = [
+  ['The big picture', [
+    ['Value chain', 'All', 'The steps a service goes through, from the money that pays for it to the person who does the work. Here: from funding care to paying the care worker.', 'This page maps eight stages, S1 to S8.'],
+    ['Stage', 'All', 'One step in the chain, such as rostering or claiming. Each has an ID from S1 to S8.', ''],
+    ['Entity', 'All', 'Any person, organisation or system that takes part in the chain. Each has an ID from E01 to E18.', 'The client, the funder, Skedulo, payroll.'],
+    ['Flow', 'All', 'Something that moves between two entities: money, a service, data, or a decision (authority).', 'F16 is the funder paying the provider.'],
+    ['Layer', 'All', 'A band of entities that play a similar role: demand, funding, delivery, systems, oversight.', ''],
+    ['Demand side', 'All', 'The people who need care and the families who arrange it.', ''],
+    ['Supply side', 'All', 'Everyone who provides care: providers, workers and the systems they use.', ''],
+    ['Long-term care', 'All', 'Ongoing help with everyday tasks such as washing, dressing and eating, for months or years rather than a short recovery.', ''],
+    ['Home care', 'All', 'Non-medical help at home: personal care, cleaning, meals, company.', ''],
+    ['Home health', 'All', 'Medical care at home from nurses and therapists, often after a hospital stay.', ''],
+    ['Post-acute care', 'All', 'Care after someone leaves hospital, to help them recover and avoid going back.', ''],
+    ['Reablement', 'UK', 'Short-term help that rebuilds someone\'s skills so they can manage at home on their own again.', ''],
+    ['Allied health', 'All', 'Health professionals who are not doctors or nurses, such as physiotherapists, occupational therapists and speech therapists.', ''],
+    ['ABA', 'US, AU', 'Applied behaviour analysis, a common therapy for autistic children.', ''],
+    ['Ageing in place', 'All', 'Staying in your own home and community as you get older, instead of moving into a care home.', '']
+  ]],
+  ['Money and funding', [
+    ['Funder or payer', 'All', 'The organisation that pays for care. Usually a government scheme or an insurer, sometimes the client.', 'NDIA, Medicaid, a council.'],
+    ['Means test', 'All', 'A check of someone\'s income and savings to decide how much help they get and how much they pay themselves.', 'In England, people with over £23,250 in savings pay in full.'],
+    ['Self-funder', 'UK', 'Someone who pays for their own care because their savings are above the means-test limit.', ''],
+    ['Co-payment or contribution', 'All', 'The share of the cost the client pays themselves.', 'A full pensioner pays 17.5% for everyday-living help under Support at Home.'],
+    ['Private pay', 'All', 'Paying for care directly, with no government or insurance help.', ''],
+    ['Entitlement', 'All', 'What a person is approved to receive: a budget, a plan or a number of hours.', ''],
+    ['Budget or plan', 'AU', 'The amount of money set aside for one person\'s supports, and what it can be spent on.', ''],
+    ['Authorised hours', 'US', 'The number of care hours a payer has approved for one client.', ''],
+    ['Waiting list', 'All', 'People approved for care who are still waiting for funding or a place.', ''],
+    ['Interim funding', 'AU', 'A partial budget given while someone waits for their full amount.', 'Often 60% of the budget at first.'],
+    ['Fee rate', 'UK', 'The hourly price a council pays a provider.', ''],
+    ['Long-term care insurance', 'All', 'Insurance that pays out if you can no longer look after yourself.', 'CareShield Life in Singapore.'],
+    ['Value-based care', 'US', 'Paying providers for good results (healthier patients) rather than for each visit.', '']
+  ]],
+  ['Claims and proof of delivery', [
+    ['Claim', 'All', 'A request to the funder to be paid for care already delivered.', ''],
+    ['Invoice', 'All', 'A bill sent to a client, a council or a funder.', ''],
+    ['Actuals', 'All', 'The real start and end times of a visit, as recorded on the day, rather than the planned times.', 'Skedulo captures these at check-in and check-out.'],
+    ['Check-in and check-out', 'All', 'When the worker records arriving and leaving on the mobile app.', ''],
+    ['EVV (Electronic Visit Verification)', 'US', 'A federal rule that Medicaid home visits must be recorded electronically to prove they happened, with six details: service, person, date, place, worker and times.', 'Claims without matching EVV data are now denied in many states.'],
+    ['EVV aggregator', 'US', 'A state system that collects visit records from every provider\'s software and checks them against claims.', 'Sandata, HHAeXchange.'],
+    ['EVV system of record', 'US', 'The software a provider officially uses to send its visit data to the state.', ''],
+    ['Bulk payment request', 'AU', 'One file of many NDIS claims sent together through the PACE system.', ''],
+    ['Clearinghouse', 'US', 'A company that checks and forwards insurance claims from providers to payers.', ''],
+    ['Visit monitoring', 'UK', 'Council tracking of carer arrival and departure times, set out in the contract.', '']
+  ]],
+  ['People and organisations', [
+    ['Client, participant or patient', 'All', 'The person who receives care. NDIS calls them participants; hospitals call them patients.', ''],
+    ['Provider', 'All', 'The organisation that delivers care and employs the workers. Skedulo\'s customers are providers.', ''],
+    ['Agency', 'US, UK', 'Another word for a home care provider.', ''],
+    ['Frontline worker', 'All', 'The person who visits the client: nurse, aide, support worker or therapist.', ''],
+    ['Support worker', 'AU', 'A frontline worker in disability or aged care.', ''],
+    ['Scheduler or rostering team', 'All', 'Office staff who decide which worker goes to which client, and when.', ''],
+    ['Assessor or care coordinator', 'All', 'The person who works out what care someone needs and gets it approved.', ''],
+    ['Referral source', 'All', 'Whoever sends a new client to a provider, such as a hospital or GP.', ''],
+    ['Regulator', 'All', 'A government body that sets care standards, inspects providers and can stop them operating.', 'CQC, NDIS Commission.'],
+    ['Payer-provider (vertical integration)', 'US', 'When one company owns both the insurer and the care providers.', 'UnitedHealth with Amedisys.']
+  ]],
+  ['Systems and software', [
+    ['System of record', 'All', 'The one system everyone treats as the source of truth for a type of data.', 'The care platform for clients; payroll for employees.'],
+    ['Care management platform', 'All', 'Software that holds client records, care plans, funding and billing.', 'Lumary, AlayaCare.'],
+    ['EHR or EMR', 'All', 'Electronic health (or medical) record: the digital clinical file for each patient.', 'Epic, WellSky.'],
+    ['Rostering or scheduling', 'All', 'Deciding which worker covers which shift or visit.', 'Skedulo\'s core job.'],
+    ['Base roster', 'AU', 'The regular, repeating weekly pattern of shifts, before day-to-day changes.', ''],
+    ['Routing', 'All', 'Ordering visits so workers spend less time driving between clients.', ''],
+    ['Payroll', 'All', 'The system that works out and pays workers\' wages.', ''],
+    ['Award interpretation', 'AU', 'Software that applies award pay rules (penalty rates, allowances) to timesheets.', ''],
+    ['Timesheet', 'All', 'The record of hours a worker worked, sent to payroll.', ''],
+    ['Integration', 'All', 'A connection that moves data automatically between two systems.', ''],
+    ['API', 'All', 'A defined way for one system to send data to or ask data from another.', ''],
+    ['Salesforce managed package', 'All', 'An add-on installed into a customer\'s Salesforce org. Skedulo core and the AU Healthcare package are managed packages.', ''],
+    ['Salesforce Health Cloud', 'US, AU', 'Salesforce\'s healthcare product, which Skedulo can extend for care at home.', ''],
+    ['Lens API', 'All', 'Skedulo\'s API for connecting the standalone platform to other systems.', ''],
+  ]],
+  ['Australia', [
+    ['NDIS', 'AU', 'National Disability Insurance Scheme: government funding for people with a permanent disability, not means-tested.', ''],
+    ['NDIA', 'AU', 'National Disability Insurance Agency: the government body that runs the NDIS.', ''],
+    ['PACE', 'AU', 'The NDIA\'s newer computer system for plans and claims.', ''],
+    ['my provider', 'AU', 'A provider the participant has recorded in PACE. Some providers can only claim if they are one.', ''],
+    ['SIL', 'AU', 'Supported independent living: help for people living in shared disability homes, often 24/7.', ''],
+    ['Roster of care', 'AU', 'The NDIA document that shows the support a SIL participant gets across a typical week.', ''],
+    ['Support at Home', 'AU', 'Australia\'s aged care programme for care at home since 1 November 2025, replacing Home Care Packages.', ''],
+    ['Home Care Packages', 'AU', 'The older aged care programme that Support at Home replaced.', ''],
+    ['CHSP', 'AU', 'Commonwealth Home Support Programme: lower-level help at home, moving into Support at Home no earlier than July 2027.', ''],
+    ['Services Australia', 'AU', 'The government agency that holds Support at Home budgets and pays aged care claims.', ''],
+    ['My Aged Care', 'AU', 'The government entry point for aged care assessments and information.', ''],
+    ['SCHADS Award', 'AU', 'The legal pay rules for most disability, aged care and home care workers: minimum rates, shift rules and allowances.', 'Rosters must be published two weeks ahead.'],
+    ['Broken shift', 'AU', 'A shift split into two or more parts in one day. SCHADS limits the total span to 12 hours and adds an allowance.', ''],
+    ['Sleepover', 'AU', 'An overnight shift where the worker sleeps on site and is paid differently unless woken to help.', ''],
+    ['Lumary', 'AU', 'A Salesforce-based care platform for disability and aged care. Skedulo\'s main partner in Australia.', ''],
+    ['2cloudnine (Sage)', 'AU', 'Payroll software, now part of Sage, that Skedulo sends timesheets to.', ''],
+    ['Employment Hero (KeyPay)', 'AU', 'Payroll and HR software Skedulo integrates with.', ''],
+    ['Easy Employer', 'AU', 'Payroll software with SCHADS award interpretation that Skedulo integrates with.', ''],
+    ['OAIC and APPs', 'AU', 'The privacy regulator and the Australian Privacy Principles it enforces.', '']
+  ]],
+  ['United States', [
+    ['Medicare', 'US', 'Federal health insurance for people 65 and over. Pays for short skilled home health, not ongoing personal care.', ''],
+    ['Medicaid', 'US', 'Health coverage for people on low incomes, run by each state. The main payer for long-term care at home.', ''],
+    ['Medicare Advantage', 'US', 'Private insurance plans that deliver Medicare benefits, sometimes with extras.', ''],
+    ['Managed-care plan (MCO)', 'US', 'A private company a state pays to manage Medicaid for its members.', ''],
+    ['HCBS', 'US', 'Home and community-based services: Medicaid help at home instead of in a nursing home.', ''],
+    ['Waiver', 'US', 'A Medicaid programme that lets a state offer extra home care, and cap how many people get it.', ''],
+    ['CMS', 'US', 'Centers for Medicare and Medicaid Services: the federal agency that runs Medicare and oversees Medicaid.', ''],
+    ['PDGM', 'US', 'Patient-Driven Groupings Model: how Medicare pays home health agencies per 30-day period.', ''],
+    ['OASIS', 'US', 'The standard assessment form home health agencies complete for Medicare patients.', ''],
+    ['HIPAA and BAA', 'US', 'The US health privacy law, and the Business Associate Agreement a vendor signs to handle patient data.', ''],
+    ['Epic', 'US', 'The largest hospital EHR, now also offering staff scheduling.', '']
+  ]],
+  ['United Kingdom, Canada and New Zealand', [
+    ['Council (local authority)', 'UK', 'Local government that assesses need and buys social care.', ''],
+    ['NHS', 'UK', 'National Health Service, the public health system.', ''],
+    ['ICB', 'UK', 'Integrated Care Board: the NHS body that plans and funds health services in an area.', ''],
+    ['NHS continuing healthcare', 'UK', 'NHS-funded care for people whose needs are mainly health needs.', ''],
+    ['Better Care Fund', 'UK', 'Money councils and the NHS pool to keep people well at home and out of hospital.', ''],
+    ['CQC', 'UK', 'Care Quality Commission: registers and inspects care providers in England.', ''],
+    ['National Living Wage', 'UK', 'The legal minimum hourly wage for workers aged 21 and over.', '£12.71 from April 2026.'],
+    ['DSCR', 'UK', 'Digital social care record: a care provider\'s electronic client record system.', ''],
+    ['NHS assured supplier', 'UK', 'A care record vendor checked by NHS England, which unlocks digitisation funding.', ''],
+    ['GP Connect', 'UK', 'An NHS service that lets care workers see a client\'s GP record, such as medications.', ''],
+    ['UK GDPR and ICO', 'UK', 'The UK data protection law and the regulator that enforces it.', ''],
+    ['Ontario Health atHome', 'Canada', 'The Ontario agency that coordinates home care and contracts providers.', ''],
+    ['SPO', 'Canada', 'Service provider organisation: a home care provider under contract to Ontario Health atHome.', ''],
+    ['HIPC and HISO 10029', 'NZ', 'New Zealand\'s health privacy code and health information security standard.', '']
+  ]],
+  ['ASEAN', [
+    ['AIC', 'Singapore', 'Agency for Integrated Care: coordinates long-term care and subsidised providers in Singapore.', ''],
+    ['CareShield Life', 'Singapore', 'Singapore\'s national long-term care insurance. Pays monthly cash if you cannot do 3 of 6 daily activities.', ''],
+    ['Home Caregiving Grant', 'Singapore', 'A monthly cash grant for families caring for someone at home, up to $600 from April 2026.', ''],
+    ['Activities of daily living', 'All', 'Basic self-care tasks such as washing, dressing, eating and moving around, used to measure care need.', ''],
+    ['NHSO and UCS', 'Thailand', 'National Health Security Office, which runs the Universal Coverage Scheme, Thailand\'s public health cover.', ''],
+    ['Act 802', 'Malaysia', 'Malaysia\'s aged-care facilities law, passed in 2018 but not yet in force.', ''],
+    ['PDPA', 'Singapore, Malaysia, Thailand', 'Personal Data Protection Act: national privacy law in several ASEAN countries.', ''],
+    ['PhilHealth and BPJS', 'Philippines, Indonesia', 'The national health insurers. They cover hospital care but not long-term care at home.', '']
+  ]]
+];
+(function setupGlossary() {
+  const sel = document.getElementById('glGroup');
+  sel.innerHTML = '<option value="">All groups</option>' + GLOSSARY.map(([g]) => `<option>${esc(g)}</option>`).join('');
+  const draw = () => {
+    const q = document.getElementById('glSearch').value.trim().toLowerCase();
+    const g = sel.value;
+    let n = 0;
+    const html = GLOSSARY.filter(([name]) => !g || name === g).map(([name, terms]) => {
+      const hits = terms.filter(t => !q || t.join(' ').toLowerCase().includes(q));
+      n += hits.length;
+      if (!hits.length) return '';
+      return `<div class="glgroup"><h3>${esc(name)}</h3><dl>` + hits.map(([term, rg, def, eg]) =>
+        `<div class="gl"><dt>${esc(term)}<span class="rg">${esc(rg)}</span></dt><dd>${esc(def)}${eg ? `<span class="eg">${esc(eg)}</span>` : ''}</dd></div>`).join('') + '</dl></div>';
+    }).join('');
+    document.getElementById('glBody').innerHTML = html || '<p>No terms match. Try a shorter word, or choose All groups.</p>';
+    document.getElementById('glCount').textContent = `${n} term${n === 1 ? '' : 's'} shown`;
+  };
+  document.getElementById('glSearch').addEventListener('input', draw);
+  sel.addEventListener('change', draw);
+  document.getElementById('glForm').addEventListener('submit', e => e.preventDefault());
+  draw();
+})();
+
+/* ---------- Routing ---------- */
+const VIEWS = ['overview', 'flow-map', 'entities', 'demand', 'regions', 'players', 'playbook', 'glossary', 'sources'];
+function route() {
+  const h = location.hash.replace('#', '');
+  const v = VIEWS.includes(h) ? h : 'overview';
+  VIEWS.forEach(x => document.getElementById('v-' + x).classList.toggle('on', x === v));
+  document.querySelectorAll('#tabbar a').forEach(a => a.toggleAttribute('aria-current', false));
+  const cur = document.querySelector(`#tabbar a[data-view="${v}"]`);
+  if (cur) { cur.setAttribute('aria-current', 'page'); cur.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
+}
+window.addEventListener('hashchange', () => { route(); window.scrollTo({ top: 0 }); });
+
+/* ---------- Wire up ---------- */
+buildMap();
+document.querySelectorAll('[data-region]').forEach(b => b.addEventListener('click', () => setRegion(b.dataset.region)));
+document.querySelectorAll('[data-type]').forEach(b => b.addEventListener('click', () => {
+  const t = b.dataset.type;
+  if (state.types.has(t)) state.types.delete(t); else state.types.add(t);
+  b.setAttribute('aria-pressed', String(state.types.has(t)));
+  render();
+}));
+document.getElementById('walkStart').addEventListener('click', () => { state.step = 1; state.sel = null; render(); });
+document.getElementById('walkPrev').addEventListener('click', () => { if (state.step > 1) { state.step--; render(); } });
+document.getElementById('walkNext').addEventListener('click', () => { if (state.step < 8) { state.step++; render(); } });
+document.getElementById('clearSel').addEventListener('click', () => { state.step = null; state.sel = null; render(); });
+setRegion('au');
+
+document.getElementById('entSearch').addEventListener('input', renderModelTables);
+document.getElementById('entType').addEventListener('change', renderModelTables);
+document.getElementById('entForm').addEventListener('submit', e => e.preventDefault());
+renderModelTables();
+renderDemand();
+document.querySelectorAll('[data-rgn]').forEach(b => b.addEventListener('click', () => renderRegion(b.dataset.rgn)));
+renderRegion('au');
+renderOverlay();
+renderPlayers();
+document.getElementById('tRegion').addEventListener('change', renderChecks);
+document.getElementById('tWhere').addEventListener('change', renderChecks);
+document.getElementById('triage').addEventListener('submit', e => e.preventDefault());
+renderChecks();
+renderSources();
+route();
+</script>
+</body>
+</html>
