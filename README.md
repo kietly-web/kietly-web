@@ -55,11 +55,11 @@ const kiet = {
 
 ## ⚡ Recently shipped
 
+- 🟣 <a href="https://github.com/kietly-web/engagement-tool/pull/20"><code>ET-24</code> Plan boss raid and shared pet games</a> <sub>· engagement-tool · 18 Nov 2026</sub>
 - 🟣 <a href="https://github.com/kietly-web/engagement-tool/pull/17"><code>ET-23</code> Add one-step OBS setup with a single scene link</a> <sub>· engagement-tool · 12 Nov 2026</sub>
 - 🟣 <a href="https://github.com/kietly-web/engagement-tool/pull/16"><code>ET-15</code> Add first real run checklist and mark phase 1 built</a> <sub>· engagement-tool · 12 Nov 2026</sub>
 - 🟣 <a href="https://github.com/kietly-web/engagement-tool/pull/15"><code>ET-21</code> Cut dashboard polling and flush points every 10 minutes</a> <sub>· engagement-tool · 12 Nov 2026</sub>
 - 🟣 <a href="https://github.com/kietly-web/engagement-tool/pull/14"><code>ET-17</code> Show Super Chats and memberships as overlay alerts</a> <sub>· engagement-tool · 12 Nov 2026</sub>
-- 🟣 <a href="https://github.com/kietly-web/engagement-tool/pull/13"><code>ET-14</code> Add creator chat commands that trigger overlay alerts</a> <sub>· engagement-tool · 12 Nov 2026</sub>
 
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kietly-web/kietly-web/output/snake-dark.svg"><img alt="Snake eating my contribution graph" src="https://raw.githubusercontent.com/kietly-web/kietly-web/output/snake-light.svg" width="100%"></picture>
